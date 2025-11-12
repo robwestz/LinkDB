@@ -31,7 +31,7 @@ const CustomerList = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Customers</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Customers</h1>
 
       {/* Search */}
       <Card className="mb-6">
@@ -40,7 +40,7 @@ const CustomerList = () => {
           placeholder="Search customers..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
         />
       </Card>
 
@@ -49,12 +49,12 @@ const CustomerList = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4">Customer</th>
-                <th className="text-left py-3 px-4">Brand</th>
-                <th className="text-left py-3 px-4">Links</th>
-                <th className="text-left py-3 px-4">Health Score</th>
-                <th className="text-left py-3 px-4">Status</th>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left py-3 px-4 text-gray-700 dark:text-gray-300">Customer</th>
+                <th className="text-left py-3 px-4 text-gray-700 dark:text-gray-300">Brand</th>
+                <th className="text-left py-3 px-4 text-gray-700 dark:text-gray-300">Links</th>
+                <th className="text-left py-3 px-4 text-gray-700 dark:text-gray-300">Health Score</th>
+                <th className="text-left py-3 px-4 text-gray-700 dark:text-gray-300">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -62,12 +62,12 @@ const CustomerList = () => {
                 <tr
                   key={customer.id}
                   onClick={() => navigate(`/customers/${customer.id}`)}
-                  className="border-b hover:bg-gray-50 cursor-pointer"
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
                 >
-                  <td className="py-3 px-4 font-medium">{customer.canonical_root}</td>
-                  <td className="py-3 px-4">{customer.brand}</td>
-                  <td className="py-3 px-4">{customer.total_links}</td>
-                  <td className="py-3 px-4">{customer.health_score?.toFixed(1) || 'N/A'}</td>
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{customer.canonical_root}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{customer.brand}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{customer.total_links}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{customer.health_score?.toFixed(1) || 'N/A'}</td>
                   <td className="py-3 px-4">
                     <Badge variant={customer.health_score >= 80 ? 'success' : 'warning'}>
                       {customer.health_score >= 80 ? 'Excellent' : 'Good'}

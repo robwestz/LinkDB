@@ -45,15 +45,15 @@ const CustomerAnalysis = () => {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">{analysis.canonical_root}</h1>
-        <p className="text-gray-600">{analysis.brand}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{analysis.canonical_root}</h1>
+        <p className="text-gray-600 dark:text-gray-400">{analysis.brand}</p>
       </div>
 
       {/* Executive Summary */}
       <Card className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Overall Health</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Overall Health</h2>
             <p className="text-lg">
               <Badge variant={analysis.overall_score >= 80 ? 'success' : 'warning'}>
                 {analysis.overall_score >= 80 ? 'EXCELLENT' : 'GOOD'}
@@ -67,27 +67,27 @@ const CustomerAnalysis = () => {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
-          <p className="text-sm text-gray-600">Anchor Quality</p>
-          <p className="text-2xl font-bold">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Anchor Quality</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {analysis.anchor_quality?.quality_score?.toFixed(1) || 'N/A'}/100
           </p>
         </Card>
         <Card>
-          <p className="text-sm text-gray-600">Temporal Health</p>
-          <p className="text-2xl font-bold">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Temporal Health</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {analysis.temporal_patterns?.health_score?.toFixed(1) || 'N/A'}/100
           </p>
         </Card>
         <Card>
-          <p className="text-sm text-gray-600">Domain Quality</p>
-          <p className="text-2xl font-bold">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Domain Quality</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {analysis.domain_quality?.quality_score?.toFixed(1) || 'N/A'}/100
           </p>
         </Card>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <div className="flex space-x-8">
           {tabs.map(tab => (
             <button
@@ -95,8 +95,8 @@ const CustomerAnalysis = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`py-4 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
               {tab.label}
@@ -111,20 +111,20 @@ const CustomerAnalysis = () => {
           <Card title="Link Portfolio">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Total Links</p>
-                <p className="text-2xl font-bold">{analysis.link_history?.total_links}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Links</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.link_history?.total_links}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Unique Domains</p>
-                <p className="text-2xl font-bold">{analysis.link_history?.unique_pub_domains}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Unique Domains</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.link_history?.unique_pub_domains}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Target URLs</p>
-                <p className="text-2xl font-bold">{analysis.link_history?.unique_target_urls}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Target URLs</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.link_history?.unique_target_urls}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Links/Month</p>
-                <p className="text-2xl font-bold">{analysis.link_history?.links_per_month?.toFixed(1)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Links/Month</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.link_history?.links_per_month?.toFixed(1)}</p>
               </div>
             </div>
           </Card>
@@ -132,8 +132,8 @@ const CustomerAnalysis = () => {
           <Card title="Top Recommendations">
             <div className="space-y-3">
               {analysis.link_history?.recommendations?.slice(0, 3).map((rec, i) => (
-                <div key={i} className="p-3 bg-gray-50 rounded-lg">
-                  <p>{rec}</p>
+                <div key={i} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <p className="text-gray-700 dark:text-gray-300">{rec}</p>
                 </div>
               ))}
             </div>
@@ -152,19 +152,19 @@ const CustomerAnalysis = () => {
           <Card title="Anchor Quality Overview">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div>
-                <p className="text-sm text-gray-600">Quality Score</p>
-                <p className="text-2xl font-bold">{analysis.anchor_quality.quality_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Quality Score</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.anchor_quality.quality_score?.toFixed(1)}/100</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Diversity</p>
-                <p className="text-2xl font-bold">{analysis.anchor_quality.diversity_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Diversity</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.anchor_quality.diversity_score?.toFixed(1)}/100</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Exact Match %</p>
-                <p className="text-2xl font-bold">{analysis.anchor_quality.exact_match_ratio?.toFixed(1)}%</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Exact Match %</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.anchor_quality.exact_match_ratio?.toFixed(1)}%</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Risk</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Risk</p>
                 <Badge variant={analysis.anchor_quality.over_optimization_risk === 'high' ? 'danger' : 'success'}>
                   {analysis.anchor_quality.over_optimization_risk?.toUpperCase()}
                 </Badge>
@@ -184,8 +184,8 @@ const CustomerAnalysis = () => {
             <Card title="Warnings">
               <div className="space-y-2">
                 {analysis.anchor_quality.warnings.map((warning, i) => (
-                  <div key={i} className="p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-                    <p className="text-sm">{warning}</p>
+                  <div key={i} className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 dark:border-yellow-600 rounded">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-400">{warning}</p>
                   </div>
                 ))}
               </div>
@@ -199,20 +199,20 @@ const CustomerAnalysis = () => {
           <Card title="Temporal Health">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div>
-                <p className="text-sm text-gray-600">Health Score</p>
-                <p className="text-2xl font-bold">{analysis.temporal_patterns.health_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Health Score</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.temporal_patterns.health_score?.toFixed(1)}/100</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Velocity</p>
-                <p className="text-2xl font-bold">{analysis.temporal_patterns.links_per_month?.toFixed(1)}/mo</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Velocity</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.temporal_patterns.links_per_month?.toFixed(1)}/mo</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Trend</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Trend</p>
                 <Badge>{analysis.temporal_patterns.velocity_trend?.toUpperCase()}</Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Consistency</p>
-                <p className="text-2xl font-bold">{analysis.temporal_patterns.consistency_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Consistency</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.temporal_patterns.consistency_score?.toFixed(1)}/100</p>
               </div>
             </div>
 
@@ -231,20 +231,20 @@ const CustomerAnalysis = () => {
           <Card title="Domain Quality">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div>
-                <p className="text-sm text-gray-600">Quality Score</p>
-                <p className="text-2xl font-bold">{analysis.domain_quality.quality_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Quality Score</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.domain_quality.quality_score?.toFixed(1)}/100</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Unique Domains</p>
-                <p className="text-2xl font-bold">{analysis.domain_quality.unique_domains}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Unique Domains</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.domain_quality.unique_domains}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Diversity</p>
-                <p className="text-2xl font-bold">{analysis.domain_quality.diversity_score?.toFixed(1)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Diversity</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.domain_quality.diversity_score?.toFixed(1)}/100</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Cross-linking</p>
-                <p className="text-2xl font-bold">{analysis.domain_quality.cross_linking_score?.toFixed(0)}/100</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Cross-linking</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analysis.domain_quality.cross_linking_score?.toFixed(0)}/100</p>
               </div>
             </div>
 
@@ -263,7 +263,7 @@ const CustomerAnalysis = () => {
       {activeTab === 'competitive' && (
         <div>
           <Card title="Competitive Position">
-            <p className="text-gray-600">Competitive analysis coming soon...</p>
+            <p className="text-gray-600 dark:text-gray-400">Competitive analysis coming soon...</p>
           </Card>
         </div>
       )}

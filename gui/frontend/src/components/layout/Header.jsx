@@ -1,16 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../common/ThemeToggle';
 
 const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white dark:bg-gray-800 shadow-md transition-colors">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center">
-          <h2 className="text-xl font-semibold text-gray-800">Analytics Dashboard</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Analytics Dashboard</h2>
         </div>
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* AI Assistant Button */}
           <button
             onClick={() => navigate('/ai-chat')}
@@ -22,7 +26,7 @@ const Header = () => {
             <span className="font-medium">AI Assistant</span>
           </button>
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             <span className="font-medium">LinkDB Analytics</span>
           </div>
         </div>

@@ -42,6 +42,22 @@ try:
 except ImportError as e:
     print(f"⚠️  AI routes not available: {e}")
 
+# Include Advanced Analysis routes
+try:
+    from routes import advanced_analysis
+    app.include_router(advanced_analysis.router)
+    print("✅ Advanced Analysis routes loaded successfully")
+except ImportError as e:
+    print(f"⚠️  Advanced Analysis routes not available: {e}")
+
+# Include CRUD routes
+try:
+    from routes import crud
+    app.include_router(crud.router)
+    print("✅ CRUD routes loaded successfully")
+except ImportError as e:
+    print(f"⚠️  CRUD routes not available: {e}")
+
 # Define the absolute path to the database
 DB_PATH = str(Path(__file__).parent.parent.parent / "data" / "output" / "linkops_history.db")
 

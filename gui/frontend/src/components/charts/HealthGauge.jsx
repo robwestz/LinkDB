@@ -12,7 +12,7 @@ const HealthGauge = ({ score, label, size = 200 }) => {
 
   const color = getColor(score);
 
-  // Data för gauge (score + remaining to 100)
+  // Data for gauge (score + remaining to 100)
   const data = [
     { value: score },
     { value: 100 - score }

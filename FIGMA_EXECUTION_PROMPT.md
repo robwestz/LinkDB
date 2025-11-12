@@ -420,7 +420,465 @@ Adjust layouts according to responsive specifications:
    - Add descriptions to components
    - Create component documentation
 
-**Stop here and confirm**: "Phase 15 complete. Design ready for handoff!"
+**Stop here and confirm**: "Phase 15 complete. Base design ready for handoff!"
+
+---
+
+## 🚀 Phase 16: Date Range Filter Component (Advanced Features)
+
+**Goal**: Add global date range filtering to Customer Analysis page
+
+**Tasks:**
+
+1. **Create DateRangeFilter Component**:
+   - Frame: Auto width × 80px height
+   - Apply Auto Layout: Horizontal, padding 24px, gap 16px
+   - Background: white (light) / gray-800 (dark)
+   - Border-radius: 8px
+   - Shadow: default card shadow
+
+2. **Add Date Picker Inputs**:
+   ```
+   Left side:
+   - Label: "From" (12px, semibold, gray-700/gray-300)
+   - Input: 150px wide, standard input styling
+   - Placeholder: "YYYY-MM" or "2024-01"
+   - Dropdown icon (▾)
+
+   Arrow icon: → (20px, gray-400, margin 0 8px)
+
+   Right side:
+   - Label: "To" (12px, semibold)
+   - Input: 150px wide, same styling
+   - Placeholder: "YYYY-MM" or "2024-12"
+   - Dropdown icon (▾)
+   ```
+
+3. **Add Action Buttons**:
+   - "Apply Filter" button (Primary)
+   - "Clear" button (Secondary)
+   - Gap: 8px between buttons
+
+4. **Add Active Filter Indicator**:
+   ```
+   When filter is active:
+   - Background: blue-50 (light) / blue-900/20 (dark)
+   - Border: 1px solid blue-200/blue-800
+   - Padding: 8px 12px
+   - Border-radius: 6px
+   - Text: "📅 Jan 2024 - Dec 2024" (14px, blue-700/blue-400)
+   - X icon to clear (16px, clickable)
+   - Align to right (margin-left: auto)
+   ```
+
+5. **Create Component Variants**:
+   - Theme: Light, Dark
+   - State: Empty, Active (with date range shown)
+
+6. **Place on Customer Analysis Page**:
+   - Position: After "Key Metrics" cards, before "Tabs"
+   - Full width
+   - Margin-bottom: 24px
+
+**Stop here and confirm**: "Phase 16 complete. Ready for next phase?"
+
+---
+
+## 🚀 Phase 17: Enhanced Anchor Analysis Tab
+
+**Goal**: Add 4 sub-views to existing Anchor Analysis tab
+
+**Tasks:**
+
+1. **Create Toolbar Component** (at top of Anchor Analysis content):
+   ```
+   Layout: Horizontal, space-between
+
+   Left side - Tab Pills:
+   - [Distribution] [Frequency] [Word Cloud] [Search]
+   - Inactive: transparent bg, gray-600/gray-400 text
+   - Active: blue-50/blue-900/20 bg, blue-600/blue-400 text
+   - Border-bottom: 2px (transparent/active color)
+   - Padding: 8px 16px each
+   - Gap: 8px between pills
+
+   Right side:
+   - Export button (CSV icon)
+   - Settings icon
+   ```
+
+2. **Create Frequency View** (New):
+   ```
+   Card: "Anchor Text Frequency"
+
+   Statistics Panel (top):
+   - Background: gray-50/gray-900
+   - Padding: 16px
+   - Display: flex, space-evenly
+   - Stats: Total Links | Unique Anchors | Top Usage % | Diversity Score
+
+   Table:
+   Columns: Rank | Anchor Text | Count | Percentage | Visual Bar
+   - Rank: gray-500, 14px
+   - Anchor Text: gray-900/gray-100, 14px, medium
+   - Count: gray-700/gray-300, 14px
+   - Percentage: gray-700/gray-300, 14px
+   - Visual Bar: Blue bar proportional to percentage
+   - Rows: Hover bg gray-50/gray-700/50
+   - Sortable headers (add ↕ icon)
+   ```
+
+3. **Create Word Cloud View** (New):
+   ```
+   Card: "Word Frequency in Anchors"
+
+   Controls (top):
+   - Min word length: Dropdown [3▾]
+   - Exclude common words: Checkbox [✓]
+   - Show top: Dropdown [100▾] words
+   - Inline layout with 16px gap
+
+   Table:
+   Columns: Word | Frequency | Used in X anchors | Visual Bar
+   - Same styling as Frequency table
+   - Click word to highlight in context
+   ```
+
+4. **Create Search View** (New):
+   ```
+   Card: "Search Anchor Texts"
+
+   Search Bar:
+   - Input: Full width, "🔍 Search for word or phrase..."
+   - Checkbox: "☐ Case sensitive" below input
+   - Search button (Primary)
+
+   Results Table (after search):
+   - Header: "Found X links containing 'search term'"
+   - Columns: Anchor Text | Pub Domain | Date
+   - Export button: "Export Results (CSV)"
+   - Empty state: 🔍 icon + "Enter search term above"
+   ```
+
+5. **Wire Tab Switching**:
+   - Link each pill to show/hide respective view
+   - Default: Distribution (existing pie chart)
+   - Add smooth transitions
+
+**Stop here and confirm**: "Phase 17 complete. Ready for next phase?"
+
+---
+
+## 🚀 Phase 18: New Analysis Tabs - Part 1
+
+**Goal**: Create Target URLs and Link Velocity tabs
+
+**Tasks:**
+
+1. **Add New Tabs to Navigation**:
+   ```
+   Update tab list to include:
+   1. Overview
+   2. Anchor Analysis
+   3. Temporal Patterns
+   4. Domain Quality
+   5. Target URLs ← NEW
+   6. Link Velocity ← NEW
+   7. 🤖 AI Assistant
+
+   (We'll add more in Phase 19)
+   ```
+
+2. **Create Target URLs Tab Content**:
+   ```
+   Card 1: "Target URL Statistics"
+   Grid (4 columns, 24px gap):
+   - Total URLs: [147] (2xl, bold)
+   - Homepage Links: [52 (35.4%)] (2xl, bold)
+   - Deep Links: [95 (64.6%)] (2xl, bold)
+   - Diversity: [78/100] (2xl, bold)
+   Labels: 14px, gray-600/gray-400
+
+   Card 2: "Deep Linking Distribution"
+   - Pie/Donut chart (400×300px)
+   - Segments:
+     * Homepage: 35.4% (blue-600)
+     * Category pages: 28.3% (purple-600)
+     * Blog posts: 22.1% (green-600)
+     * Product pages: 14.2% (yellow-500)
+   - Legend on right side
+
+   Card 3: "Top Target URLs"
+   Table:
+   - Columns: Rank | Target URL | Links | Type | Visual Bar
+   - Type badges: Homepage (blue), Blog Post (purple), Category (green), Page (gray)
+   - Visual bars: Proportional to link count
+   - Rows: 10-20 URLs
+   ```
+
+3. **Create Link Velocity Tab Content**:
+   ```
+   Card 1: "Velocity Metrics"
+   Grid (4 columns):
+   - Avg/Month: [24.5 links] (2xl, bold)
+   - Trend: [↗ Accelerating] (2xl, bold, green if ↗, yellow if ↘)
+   - Peak Month: [42 (Mar'24)] (2xl, bold)
+   - Low Month: [8 (Jan'24)] (2xl, bold)
+
+   Card 2: "Monthly Velocity Chart"
+   - Line chart (600×400px)
+   - Recharts LineChart specification:
+     * Blue line (#3B82F6 light / #60A5FA dark)
+     * Dots on each month
+     * Grid lines (horizontal)
+     * X-axis: Months (Jan, Feb, Mar...)
+     * Y-axis: Link count
+     * Tooltip on hover
+     * Trend line (dotted, gray)
+
+   Card 3: "Velocity Insights"
+   List of insights with icons:
+   - ✓ (green): Positive insights
+   - ⚠ (yellow): Attention points
+   - ℹ (blue): Information
+   - ✗ (red): Warnings
+   Examples:
+   "✓ Steady growth over last 6 months (+15% average)"
+   "⚠ Peak activity in March (42 links) - campaign launch?"
+   ```
+
+4. **Add Chart Placeholder Annotations**:
+   - Label: "Recharts LineChart"
+   - Note: "See API_ENDPOINTS_REFERENCE.md for data format"
+   - Note: "GET /api/advanced/customers/{id}/link-velocity"
+
+**Stop here and confirm**: "Phase 18 complete. Ready for next phase?"
+
+---
+
+## 🚀 Phase 19: New Analysis Tabs - Part 2
+
+**Goal**: Create Domain Sources and Comparison tabs
+
+**Tasks:**
+
+1. **Add Remaining Tabs to Navigation**:
+   ```
+   Complete tab list:
+   1. Overview
+   2. Anchor Analysis
+   3. Temporal Patterns
+   4. Domain Quality
+   5. Target URLs
+   6. Link Velocity
+   7. Domain Sources ← NEW
+   8. Comparison ← NEW
+   9. 🤖 AI Assistant
+
+   (Manage Links tab comes in Phase 20)
+   ```
+
+2. **Create Domain Sources Tab Content**:
+   ```
+   Card 1: "Domain Statistics"
+   Grid (4 columns):
+   - Total Domains: [156] (2xl, bold)
+   - New Domains: [42 (26.9%)] (2xl, bold, green)
+   - Returning: [114 (73.1%)] (2xl, bold, blue)
+   - Avg Links/Domain: [1.9] (2xl, bold)
+
+   Card 2: "New vs Returning Domains"
+   - Stacked bar chart (600×400px)
+   - Monthly view
+   - Blue bars: New domains (#3B82F6)
+   - Purple bars: Returning domains (#8B5CF6)
+   - Legend below chart
+   - Recharts BarChart with stacked property
+
+   Card 3: "Top Referring Domains"
+   Table:
+   - Columns: Domain | Links | First Link | Latest Link | Status
+   - Status badges:
+     * ●RETURN (blue) = multiple links
+     * ○NEW (green) = single link
+   - Sortable by all columns
+   - 20-30 rows
+   ```
+
+3. **Create Comparison Tab Content**:
+   ```
+   Card 1: "Period Selection"
+   Layout:
+   - Title: "Compare Two Periods" (20px, semibold)
+   - Period 1: [2024-01▾] to [2024-03▾] (3 months)
+   - Period 2: [2024-04▾] to [2024-06▾] (3 months)
+   - Buttons: [Compare] [Quick Select▾]
+   - Quick Select dropdown:
+     * Month vs Month
+     * Quarter vs Quarter
+     * Last 3m vs Previous 3m
+     * Custom
+
+   Card 2: "Comparison Results"
+   Side-by-side table:
+   ┌─────────────────┬──────────┬──────────┬──────────────┐
+   │                 │ Period 1 │ Period 2 │ Change       │
+   ├─────────────────┼──────────┼──────────┼──────────────┤
+   │ Total Links     │ 72       │ 95       │ +23 (+31.9%)↗│
+   │ Unique Domains  │ 34       │ 48       │ +14 (+41.2%)↗│
+   │ Target URLs     │ 18       │ 22       │ +4  (+22.2%)↗│
+   │ New Domains     │ 12       │ 19       │ +7  (+58.3%)↗│
+   └─────────────────┴──────────┴──────────┴──────────────┘
+
+   Change indicators:
+   - ↗ green: Positive growth
+   - → blue: Stable
+   - ↘ yellow: Slight decrease
+   - ↓ red: Significant decrease
+
+   Card 3: "Visual Comparison"
+   - Bar chart (500×400px)
+   - Side-by-side bars for each metric
+   - Blue bars: Period 1 (#3B82F6)
+   - Purple bars: Period 2 (#8B5CF6)
+   - Legend below
+   ```
+
+**Stop here and confirm**: "Phase 19 complete. Ready for next phase?"
+
+---
+
+## 🚀 Phase 20: Manage Links Tab (CRUD Interface)
+
+**Goal**: Create full CRUD interface for link management
+
+**Tasks:**
+
+1. **Add Final Tab to Navigation**:
+   ```
+   Complete tab list (10 tabs total):
+   1. Overview
+   2. Anchor Analysis
+   3. Temporal Patterns
+   4. Domain Quality
+   5. Target URLs
+   6. Link Velocity
+   7. Domain Sources
+   8. Comparison
+   9. Manage Links ← NEW
+   10. 🤖 AI Assistant
+   ```
+
+2. **Create Manage Links Toolbar**:
+   ```
+   Layout: Horizontal, space-between
+
+   Left side:
+   - [+ Add New Link] button (Primary)
+   - [🔍 Search] input (300px)
+   - [Filter▾] dropdown
+   - [Sort▾] dropdown
+
+   Right side:
+   - [Delete Selected] button (Danger, disabled if none selected)
+   ```
+
+3. **Create Editable Links Table**:
+   ```
+   Columns: ☐ | ID | Pub Domain | Target URL | Anchor Text | Date | Actions
+
+   Header styling:
+   - Checkbox: Select all
+   - Column headers: 14px, semibold, gray-700/gray-300
+   - Sortable: Add ↕ icon to headers
+
+   Row styling:
+   - Checkbox: Individual selection
+   - ID: gray-500, 14px
+   - Text: gray-900/gray-100, 14px
+   - Hover: gray-50/gray-700/50 background
+   - Selected: blue-50/blue-900/20 background
+   - Border-left: 3px blue-600 when selected
+
+   Actions column:
+   - ✏️ Edit icon (clickable, blue on hover)
+   - 🗑️ Delete icon (clickable, red on hover)
+   - Gap: 8px between icons
+   ```
+
+4. **Create Add/Edit Modal**:
+   ```
+   Modal specs:
+   - Width: 500px
+   - Max-height: 80vh
+   - Background: white/gray-800
+   - Border-radius: 12px
+   - Shadow: xl
+   - Backdrop: rgba(0,0,0,0.5)
+
+   Header:
+   - Title: "Add New Link" or "Edit Link"
+   - Close X button (top-right)
+
+   Form fields:
+   - Publishing Domain * (required)
+   - Target URL * (required)
+   - Anchor Text * (required)
+   - Published Date * (YYYY-MM-DD) with calendar picker 📅
+   - All use standard input styling
+   - Labels: 14px, semibold
+   - Spacing: 16px between fields
+
+   Footer:
+   - [Cancel] button (Secondary)
+   - [Save Link] button (Primary)
+   - Right-aligned, 8px gap
+
+   Validation:
+   - Red border on error
+   - Error text below field (12px, red-600)
+   - Disable Save if invalid
+   ```
+
+5. **Create Bulk Actions UI**:
+   ```
+   When items selected:
+   - Show banner at top of table:
+     "✓ 3 links selected"
+   - Buttons:
+     [Bulk Edit] [Export Selected] [Delete]
+   - Background: blue-50/blue-900/20
+   - Padding: 12px 16px
+   - Border-radius: 8px
+   ```
+
+6. **Create Delete Confirmation Dialog**:
+   ```
+   Modal specs:
+   - Width: 400px
+   - Title: "⚠️ Delete X Link(s)?"
+   - Message: "This action cannot be undone..."
+   - Buttons:
+     [Cancel] (Secondary)
+     [Delete Permanently] (Danger)
+   ```
+
+7. **Add Success/Error Toasts**:
+   ```
+   Toast component:
+   - Position: Top-right
+   - Width: 350px
+   - Success: Green background, checkmark icon
+   - Error: Red background, X icon
+   - Auto-dismiss after 3 seconds
+   - Messages:
+     * "Link created successfully"
+     * "Link updated successfully"
+     * "3 links deleted"
+     * "Error: [message]"
+   ```
+
+**Stop here and confirm**: "Phase 20 complete. All advanced features added!"
 
 ---
 
@@ -476,6 +934,7 @@ Once all phases are done:
 
 **As you complete each phase, update this:**
 
+**Base Design System (Required):**
 - [ ] Phase 1: Color Styles
 - [ ] Phase 2: Typography Styles
 - [ ] Phase 3: Core Components Part 1
@@ -491,6 +950,13 @@ Once all phases are done:
 - [ ] Phase 13: Prototyping
 - [ ] Phase 14: Developer Annotations
 - [ ] Phase 15: Final Polish & Export
+
+**Advanced Features (Optional - Use Addon Prompts):**
+- [ ] Phase 16: Date Range Filter (or use FIGMA_ADDON_DATE_FILTER.md)
+- [ ] Phase 17: Enhanced Anchor Analysis (or use FIGMA_ADDON_ENHANCED_ANCHOR.md)
+- [ ] Phase 18: New Analysis Tabs Part 1 (or use FIGMA_ADDON_ANALYSIS_TABS_1.md)
+- [ ] Phase 19: New Analysis Tabs Part 2 (or use FIGMA_ADDON_ANALYSIS_TABS_2.md)
+- [ ] Phase 20: Manage Links Tab (included in FIGMA_ADDON_ANALYSIS_TABS_2.md)
 
 ---
 

@@ -1,31 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import HealthGauge from '../components/charts/HealthGauge';
+import api from '../utils/api';
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => api.getDashboardMetrics(),
+  });
 
-  useEffect(() => {
-    fetch('http://localhost:8000/api/dashboard/metrics')
-      .then(res => res.json())
-      .then(data => {
-        setData(data.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching dashboard:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
       </div>
     );
+  }
+
+  if (error) {
+    return <EmptyState message={`Error: ${error.message}`} icon="⚠️" />;
   }
 
   return (

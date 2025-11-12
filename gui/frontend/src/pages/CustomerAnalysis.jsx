@@ -1,48 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import HealthGauge from '../components/charts/HealthGauge';
 import AnchorDistributionChart from '../components/charts/AnchorDistributionChart';
 import MonthlyDistributionChart from '../components/charts/MonthlyDistributionChart';
 import TLDDistributionChart from '../components/charts/TLDDistributionChart';
+import { useCustomerAnalysis } from '../hooks/useAnalysis';
 
 const CustomerAnalysis = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
-  const [loading, setLoading] = useState(true);
-  const [analysis, setAnalysis] = useState(null);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch(`http://localhost:8000/api/customers/${id}/analysis`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setAnalysis(data.data);
-        } else {
-          setError('Analysis not available');
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Failed to load analysis');
-        setLoading(false);
-      });
-  }, [id]);
+  const { data: analysis, isLoading, error } = useCustomerAnalysis(id);
 
-  if (loading) return (
+  if (isLoading) return (
     <div className="flex items-center justify-center h-64">
       <LoadingSpinner size="lg" />
     </div>
   );
 
   if (error || !analysis) return (
-    <div className="text-center py-12">
-      <p className="text-gray-600">{error || 'No data found'}</p>
-      <p className="text-sm text-gray-500 mt-2">Analysis modules may not be available yet</p>
-    </div>
+    <EmptyState
+      message={error?.message || 'Analysis not available'}
+      icon="📊"
+    />
   );
 
   const tabs = [

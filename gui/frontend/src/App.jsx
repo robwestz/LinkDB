@@ -1,24 +1,34 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import Dashboard from './pages/Dashboard';
-import CustomerList from './pages/CustomerList';
-import CustomerAnalysis from './pages/CustomerAnalysis';
-import CompetitiveBenchmarking from './pages/CompetitiveBenchmarking';
-import LinkExplorer from './pages/LinkExplorer';
-import Settings from './pages/Settings';
+import LoadingSpinner from './components/common/LoadingSpinner';
+
+// Lazy load pages for better performance
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const CustomerList = lazy(() => import('./pages/CustomerList'));
+const CustomerAnalysis = lazy(() => import('./pages/CustomerAnalysis'));
+const CompetitiveBenchmarking = lazy(() => import('./pages/CompetitiveBenchmarking'));
+const LinkExplorer = lazy(() => import('./pages/LinkExplorer'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/customers" element={<CustomerList />} />
-          <Route path="/customers/:id" element={<CustomerAnalysis />} />
-          <Route path="/competitive" element={<CompetitiveBenchmarking />} />
-          <Route path="/links" element={<LinkExplorer />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-64">
+            <LoadingSpinner size="lg" />
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/customers" element={<CustomerList />} />
+            <Route path="/customers/:id" element={<CustomerAnalysis />} />
+            <Route path="/competitive" element={<CompetitiveBenchmarking />} />
+            <Route path="/links" element={<LinkExplorer />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </Router>
   );

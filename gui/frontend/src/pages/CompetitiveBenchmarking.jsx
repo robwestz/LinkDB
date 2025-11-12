@@ -1,26 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import CompetitiveScatterPlot from '../components/charts/CompetitiveScatterPlot';
+import { useCompetitiveOverview } from '../hooks/useCompetitive';
 
 const CompetitiveBenchmarking = () => {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const { data, isLoading, error } = useCompetitiveOverview();
 
-  useEffect(() => {
-    fetch('http://localhost:8000/api/competitive/overview')
-      .then(res => res.json())
-      .then(data => {
-        setData(data.data);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return (
+  if (isLoading) return (
     <div className="flex items-center justify-center h-64">
       <LoadingSpinner size="lg" />
     </div>
   );
+
+  if (error) {
+    return <EmptyState message={`Error: ${error.message}`} icon="⚠️" />;
+  }
 
   return (
     <div>

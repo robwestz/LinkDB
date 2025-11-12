@@ -1,36 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
+import { useLinks } from '../hooks/useLinks';
+import useDebounce from '../hooks/useDebounce';
+import { exportToCSV, exportToJSON } from '../utils/export';
+import { formatDate } from '../utils/formatters';
 
 const LinkExplorer = () => {
-  const [links, setLinks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const limit = 50;
 
-  useEffect(() => {
-    const params = new URLSearchParams({
-      offset: (page - 1) * limit,
-      limit: limit,
-      ...(search && { search }),
-    });
+  const debouncedSearch = useDebounce(search, 500);
+  const { data: links = [], isLoading, error } = useLinks(
+    { search: debouncedSearch },
+    (page - 1) * limit,
+    limit
+  );
 
-    fetch(`http://localhost:8000/api/links?${params}`)
-      .then(res => res.json())
-      .then(data => {
-        setLinks(data.data || []);
-        setLoading(false);
-      });
-  }, [page, search]);
+  const handleExportCSV = () => {
+    exportToCSV(links, 'links-export.csv');
+  };
 
-  if (loading) return (
+  const handleExportJSON = () => {
+    exportToJSON(links, 'links-export.json');
+  };
+
+  if (isLoading) return (
     <div className="flex items-center justify-center h-64">
       <LoadingSpinner size="lg" />
     </div>
   );
+
+  if (error) {
+    return <EmptyState message={`Error: ${error.message}`} icon="⚠️" />;
+  }
 
   return (
     <div>
@@ -46,7 +53,10 @@ const LinkExplorer = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <Button variant="secondary">Export</Button>
+          <div className="flex space-x-2">
+            <Button variant="secondary" onClick={handleExportCSV}>Export CSV</Button>
+            <Button variant="secondary" onClick={handleExportJSON}>Export JSON</Button>
+          </div>
         </div>
       </Card>
 
@@ -74,7 +84,7 @@ const LinkExplorer = () => {
                   <td className="py-3 px-4">
                     <Badge>{link.anchor_type}</Badge>
                   </td>
-                  <td className="py-3 px-4">{link.published_at}</td>
+                  <td className="py-3 px-4">{formatDate(link.published_at)}</td>
                 </tr>
               ))}
             </tbody>

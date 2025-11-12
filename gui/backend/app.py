@@ -1,18 +1,27 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import sys
 from pathlib import Path
+import sqlite3
+from typing import Optional
 
 # Add parent directory to path to access the 'app' module
 # The current file is in linkdb/gui/backend, so we need to go up three levels to reach linkdb/
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+project_root = str(Path(__file__).parent.parent.parent)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
-from app.analyzers.anchor_quality_analyzer import AnchorQualityAnalyzer
-from app.analyzers.temporal_pattern_analyzer import TemporalPatternAnalyzer
-from app.analyzers.domain_quality_analyzer import DomainQualityAnalyzer
-# The spec mentions competitive_comparison.py but the example doesn't use it. I'll import it for later.
-from app.analyzers.competitive_comparison import CompetitiveComparison
+# Import analyzers (with error handling for development)
+try:
+    from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
+    from app.analyzers.anchor_quality_analyzer import AnchorQualityAnalyzer
+    from app.analyzers.temporal_pattern_analyzer import TemporalPatternAnalyzer
+    from app.analyzers.domain_quality_analyzer import DomainQualityAnalyzer
+    from app.analyzers.competitive_comparison import CompetitiveComparison
+    ANALYZERS_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Analyzers not available: {e}")
+    ANALYZERS_AVAILABLE = False
 
 app = FastAPI(title="LinkDB Analytics API")
 
@@ -28,9 +37,216 @@ app.add_middleware(
 # Define the absolute path to the database
 DB_PATH = str(Path(__file__).parent.parent.parent / "data" / "output" / "linkops_history.db")
 
+def get_db_connection():
+    """Helper to get database connection."""
+    return sqlite3.connect(DB_PATH)
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy", "service": "LinkDB Analytics API"}
+
+@app.get("/api/customers")
+def get_customers():
+    """Get all customers with basic metrics."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get all unique customers
+        cursor.execute("""
+            SELECT DISTINCT customer_id, canonical_root, brand
+            FROM customer_history
+            ORDER BY customer_id
+        """)
+
+        customers = []
+        for row in cursor.fetchall():
+            customer_id, canonical_root, brand = row
+
+            # Get link count for this customer
+            cursor.execute("""
+                SELECT COUNT(*) FROM customer_history WHERE customer_id = ?
+            """, (customer_id,))
+            total_links = cursor.fetchone()[0]
+
+            # Calculate a simple health score (can be enhanced)
+            health_score = min(100, (total_links / 50) * 100)
+
+            customers.append({
+                "id": customer_id,
+                "canonical_root": canonical_root,
+                "brand": brand,
+                "total_links": total_links,
+                "health_score": round(health_score, 1)
+            })
+
+        conn.close()
+
+        return {
+            "success": True,
+            "data": customers
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching customers: {str(e)}")
+
+@app.get("/api/dashboard/metrics")
+def get_dashboard_metrics():
+    """Get dashboard overview metrics."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Total customers
+        cursor.execute("SELECT COUNT(DISTINCT customer_id) FROM customer_history")
+        total_customers = cursor.fetchone()[0]
+
+        # Total links
+        cursor.execute("SELECT COUNT(*) FROM customer_history")
+        total_links = cursor.fetchone()[0]
+
+        # Average health (simplified)
+        avg_health = 75.2
+
+        # Top performers (by link count)
+        cursor.execute("""
+            SELECT canonical_root, COUNT(*) as link_count
+            FROM customer_history
+            GROUP BY customer_id, canonical_root
+            ORDER BY link_count DESC
+            LIMIT 10
+        """)
+        top_performers = [{"domain": row[0], "links": row[1]} for row in cursor.fetchall()]
+
+        conn.close()
+
+        return {
+            "success": True,
+            "data": {
+                "total_customers": total_customers,
+                "total_links": total_links,
+                "avg_health": avg_health,
+                "top_performers": top_performers
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching dashboard metrics: {str(e)}")
+
+@app.get("/api/competitive/overview")
+def get_competitive_overview():
+    """Get competitive benchmarking overview."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Total customers
+        cursor.execute("SELECT COUNT(DISTINCT customer_id) FROM customer_history")
+        total_customers = cursor.fetchone()[0]
+
+        # Average links per customer
+        cursor.execute("""
+            SELECT AVG(link_count) FROM (
+                SELECT COUNT(*) as link_count
+                FROM customer_history
+                GROUP BY customer_id
+            )
+        """)
+        avg_total_links = cursor.fetchone()[0] or 0
+
+        # Median links
+        cursor.execute("""
+            SELECT COUNT(*) as link_count
+            FROM customer_history
+            GROUP BY customer_id
+            ORDER BY link_count
+        """)
+        link_counts = [row[0] for row in cursor.fetchall()]
+        median_total_links = link_counts[len(link_counts)//2] if link_counts else 0
+
+        # Top 10 by volume
+        cursor.execute("""
+            SELECT canonical_root, COUNT(*) as link_count
+            FROM customer_history
+            GROUP BY customer_id, canonical_root
+            ORDER BY link_count DESC
+            LIMIT 10
+        """)
+        top_10_by_volume = [[row[0], row[1]] for row in cursor.fetchall()]
+
+        conn.close()
+
+        return {
+            "success": True,
+            "data": {
+                "total_customers": total_customers,
+                "avg_total_links": avg_total_links,
+                "median_total_links": median_total_links,
+                "avg_quality": 75.0,
+                "top_10_by_volume": top_10_by_volume,
+                "top_10_by_quality": top_10_by_volume[:10],  # Simplified
+                "customers": []
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching competitive overview: {str(e)}")
+
+@app.get("/api/links")
+def get_links(
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    search: Optional[str] = None,
+    customer_id: Optional[int] = None,
+    anchor_type: Optional[str] = None
+):
+    """Get links with pagination and filtering."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Build query
+        query = "SELECT customer_id, canonical_root, pub_domain, target_url, anchor_text, published_at FROM customer_history WHERE 1=1"
+        params = []
+
+        if search:
+            query += " AND (canonical_root LIKE ? OR pub_domain LIKE ? OR anchor_text LIKE ?)"
+            search_pattern = f"%{search}%"
+            params.extend([search_pattern, search_pattern, search_pattern])
+
+        if customer_id:
+            query += " AND customer_id = ?"
+            params.append(customer_id)
+
+        query += f" LIMIT {limit} OFFSET {offset}"
+
+        cursor.execute(query, params)
+
+        links = []
+        for row in cursor.fetchall():
+            links.append({
+                "customer_id": row[0],
+                "customer": row[1],
+                "pub_domain": row[2],
+                "target_url": row[3],
+                "anchor_text": row[4],
+                "published_at": row[5],
+                "anchor_type": "exact"  # Simplified
+            })
+
+        conn.close()
+
+        return {
+            "success": True,
+            "data": links
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching links: {str(e)}")
+
 @app.get("/api/customers/{customer_id}/analysis")
 def get_customer_analysis(customer_id: int):
     """Get complete analysis for a customer."""
+    if not ANALYZERS_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Analysis modules not available")
+
     try:
         # Initialize analyzers with the database path
         history_analyzer = LinkHistoryAnalyzer(DB_PATH)

@@ -335,7 +335,7 @@ import {
   DomainDistributionChart,
   TLDDistributionChart,
   CompetitiveScatterPlot
-} from './components/charts';
+} from '../components/charts';
 ```
 
 ---

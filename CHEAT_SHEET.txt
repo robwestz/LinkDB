@@ -1,0 +1,148 @@
+╔════════════════════════════════════════════════════════════════╗
+║         PROJEKTKOPIA CHEAT SHEET                               ║
+╚════════════════════════════════════════════════════════════════╝
+
+┌────────────────────────────────────────────────────────────────┐
+│ FÖR LINKDB-PROJEKTET                                           │
+└────────────────────────────────────────────────────────────────┘
+
+  Dubbelklicka:  create_copy.bat
+
+  Eller:         python create_project_copy.py
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ FÖR ANDRA PROJEKT (Flask, Django, ML, etc.)                    │
+└────────────────────────────────────────────────────────────────┘
+
+  Steg 1:  copy C:\...\linkdb\copy_any_project.py .
+
+  Steg 2:  python copy_any_project.py
+
+  KLART! ✓
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ EXEMPEL: FLASK-PROJEKT                                         │
+└────────────────────────────────────────────────────────────────┘
+
+  cd C:\MyFlaskApp
+  copy C:\...\linkdb\copy_any_project.py .
+  python copy_any_project.py
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ EXEMPEL: DJANGO-PROJEKT                                        │
+└────────────────────────────────────────────────────────────────┘
+
+  cd C:\MyDjango
+  copy C:\...\linkdb\copy_any_project.py .
+  python copy_any_project.py
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ EFTER KOPIERING                                                │
+└────────────────────────────────────────────────────────────────┘
+
+  Steg 1:  cd ..\projekt_dev_20250205
+
+  Steg 2:  setup_dev_environment.bat
+
+  Steg 3:  .venv\Scripts\activate
+
+  Steg 4:  Börja utveckla!
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ VAD KOPIERAS                                                   │
+└────────────────────────────────────────────────────────────────┘
+
+  ✓ All Python-kod
+  ✓ Alla databaser
+  ✓ All data
+  ✓ Dokumentation
+  ✓ Scripts
+
+  ✗ .venv (skapas ny)
+  ✗ Cache
+  ✗ IDE-inställningar
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ ANPASSA FÖR DITT PROJEKT                                       │
+└────────────────────────────────────────────────────────────────┘
+
+  Öppna: copy_any_project.py
+
+  Hitta:  EXCLUDE_PATTERNS = [
+
+  Lägg till:
+    'temp/',
+    '*.bak',
+    'my_folder/',
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ VIKTIGA FILER                                                  │
+└────────────────────────────────────────────────────────────────┘
+
+  copy_any_project.py                   ← Använd överallt!
+  IMPLEMENT_IN_OTHER_PROJECTS.md        ← Fullständig guide
+  USE_IN_OTHER_PROJECTS_QUICK.md        ← Snabbguide
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ TIPS                                                           │
+└────────────────────────────────────────────────────────────────┘
+
+  • Kopiera copy_any_project.py till alla projekt
+  • Lägg i projektmallar
+  • Dela med teamet
+  • Anpassa EXCLUDE_PATTERNS per projekttyp
+  • Skapa alias för snabb användning
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ VANLIGA KOMMANDON                                              │
+└────────────────────────────────────────────────────────────────┘
+
+  # Skapa kopia
+  python copy_any_project.py
+
+  # Aktivera miljö
+  .venv\Scripts\activate
+
+  # Kopiera tillbaka
+  copy fil.py ..\original\
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ FELSÖKNING                                                     │
+└────────────────────────────────────────────────────────────────┘
+
+  Problem:  "No module named 'rich'"
+  Lösning:  pip install rich
+
+  Problem:  Fel projekt kopieras
+  Lösning:  Kontrollera cd till rätt mapp först
+
+  Problem:  Permission denied
+  Lösning:  Stäng program som har filer öppna
+
+
+╔════════════════════════════════════════════════════════════════╗
+║  SNABBSTART: IMPLEMENTERA I ANNAT PROJEKT                      ║
+╠════════════════════════════════════════════════════════════════╣
+║                                                                ║
+║  1. copy C:\...\linkdb\copy_any_project.py C:\MittProjekt\   ║
+║                                                                ║
+║  2. cd C:\MittProjekt                                         ║
+║                                                                ║
+║  3. python copy_any_project.py                                ║
+║                                                                ║
+║  KLART! ✓                                                     ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+Spara denna fil för snabbreferens!
+

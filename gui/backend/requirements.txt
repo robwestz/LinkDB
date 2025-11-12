@@ -1,5 +1,47 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-tldextract==5.0.1
-python-multipart==0.0.6
+# LinkDB Backend Requirements
+# Phase 1 & 2 - Production Ready with Performance Optimizations
+
+# FastAPI and ASGI server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Pydantic for validation and settings
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Caching
+cachetools>=5.3.2
+
+# TLD extraction for domain analysis
+tldextract>=5.0.1
+
+# Testing (Phase 1 - to be implemented)
+pytest>=7.4.3
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.1
+httpx>=0.26.0  # For testing FastAPI endpoints
+
+# Code quality
+black>=23.12.1
+isort>=5.13.2
+flake8>=7.0.0
+
+# Security
+python-jose[cryptography]>=3.3.0  # For JWT tokens (Phase 1 - auth)
+passlib[bcrypt]>=1.7.4  # For password hashing (Phase 1 - auth)
+
+# Utilities
+python-dotenv>=1.0.0  # For .env file support
+
+# Excel export (Phase 4 - advanced features)
+openpyxl>=3.1.2
+
+# Monitoring (Phase 1)
+prometheus-client>=0.19.0  # For metrics export
+
+# Rate limiting (Phase 1 - security)
+slowapi>=0.1.9
+
+# Development tools
+watchfiles>=0.21.0  # For auto-reload in development

@@ -10,7 +10,11 @@ const Badge = ({ children, variant = 'default' }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[variant]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        variantClasses[variant] || variantClasses.default
+      }`}
+    >
       {children}
     </span>
   );

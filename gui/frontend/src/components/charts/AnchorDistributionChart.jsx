@@ -2,29 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const AnchorDistributionChart = ({ data }) => {
-  // data format: [{ name: 'exact', value: 30 }, { name: 'partial', value: 40 }, ...]
-
-  const COLORS = {
-    exact: '#ef4444',      // red
-    partial: '#f59e0b',    // yellow
-    branded: '#3b82f6',    // blue
-    generic: '#6b7280',    // gray
-    lsi: '#8b5cf6',        // purple
-  };
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 rounded shadow-lg border border-gray-200">
-          <p className="font-medium">{payload[0].name}</p>
-          <p className="text-sm text-gray-600">
-            {payload[0].value.toFixed(1)}%
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -40,10 +18,10 @@ const AnchorDistributionChart = ({ data }) => {
           dataKey="value"
         >
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[entry.name] || '#6b7280'} />
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip />
         <Legend />
       </PieChart>
     </ResponsiveContainer>

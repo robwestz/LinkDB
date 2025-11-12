@@ -1,55 +1,44 @@
 import React from 'react';
-import { PieChart, Pie, Cell } from 'recharts';
 
-const HealthGauge = ({ score, label, size = 200 }) => {
-  // Determine color based on score
+const HealthGauge = ({ score, size = 100 }) => {
   const getColor = (score) => {
     if (score >= 80) return '#10b981'; // green
     if (score >= 60) return '#f59e0b'; // yellow
-    if (score >= 40) return '#f97316'; // orange
     return '#ef4444'; // red
   };
 
-  const color = getColor(score);
-
-  // Data for gauge (score + remaining to 100)
-  const data = [
-    { value: score },
-    { value: 100 - score }
-  ];
+  const strokeWidth = size * 0.1;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <PieChart width={size} height={size}>
-          <Pie
-            data={data}
-            cx={size / 2}
-            cy={size / 2}
-            startAngle={180}
-            endAngle={0}
-            innerRadius={size * 0.6}
-            outerRadius={size * 0.8}
-            paddingAngle={0}
-            dataKey="value"
-          >
-            <Cell fill={color} />
-            <Cell fill="#e5e7eb" />
-          </Pie>
-        </PieChart>
-
-        {/* Score Text Overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-4xl font-bold" style={{ color }}>
-            {score.toFixed(1)}
-          </div>
-          <div className="text-sm text-gray-600">/ 100</div>
-        </div>
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={getColor(score)}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="transition-all duration-500"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-lg font-bold">{Math.round(score)}</span>
       </div>
-
-      {label && (
-        <div className="mt-2 text-sm font-medium text-gray-700">{label}</div>
-      )}
     </div>
   );
 };

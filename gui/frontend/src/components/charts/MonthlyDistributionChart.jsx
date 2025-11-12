@@ -45,7 +45,7 @@ const MonthlyDistributionChart = ({ data, bestMonth, worstMonth }) => {
         <Tooltip content={<CustomTooltip />} />
         <Bar dataKey="count" radius={[8, 8, 0, 0]}>
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={getBarColor(entry.month)} />
+            <Cell key={`cell-${entry.month}`} fill={getBarColor(entry.month)} />
           ))}
         </Bar>
       </BarChart>

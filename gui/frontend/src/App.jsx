@@ -9,6 +9,7 @@ const CustomerList = lazy(() => import('./pages/CustomerList'));
 const CustomerAnalysis = lazy(() => import('./pages/CustomerAnalysis'));
 const CompetitiveBenchmarking = lazy(() => import('./pages/CompetitiveBenchmarking'));
 const LinkExplorer = lazy(() => import('./pages/LinkExplorer'));
+const AIChat = lazy(() => import('./pages/AIChat'));
 const Settings = lazy(() => import('./pages/Settings'));
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/customers/:id" element={<CustomerAnalysis />} />
             <Route path="/competitive" element={<CompetitiveBenchmarking />} />
             <Route path="/links" element={<LinkExplorer />} />
+            <Route path="/ai-chat" element={<AIChat />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </Suspense>

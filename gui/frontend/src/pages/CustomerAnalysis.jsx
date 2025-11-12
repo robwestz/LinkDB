@@ -8,6 +8,9 @@ import HealthGauge from '../components/charts/HealthGauge';
 import AnchorDistributionChart from '../components/charts/AnchorDistributionChart';
 import MonthlyDistributionChart from '../components/charts/MonthlyDistributionChart';
 import TLDDistributionChart from '../components/charts/TLDDistributionChart';
+import InsightsPanel from '../components/ai/InsightsPanel';
+import RecommendationsCard from '../components/ai/RecommendationsCard';
+import AIAssistant from '../components/ai/AIAssistant';
 import { useCustomerAnalysis } from '../hooks/useAnalysis';
 
 const CustomerAnalysis = () => {
@@ -35,6 +38,7 @@ const CustomerAnalysis = () => {
     { id: 'temporal', label: 'Temporal Patterns' },
     { id: 'domain', label: 'Domain Quality' },
     { id: 'competitive', label: 'Competitive' },
+    { id: 'ai', label: '🤖 AI Assistant' },
   ];
 
   return (
@@ -134,6 +138,12 @@ const CustomerAnalysis = () => {
               ))}
             </div>
           </Card>
+
+          {/* AI-Powered Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <InsightsPanel customerId={id} />
+            <RecommendationsCard customerId={id} />
+          </div>
         </div>
       )}
 
@@ -255,6 +265,12 @@ const CustomerAnalysis = () => {
           <Card title="Competitive Position">
             <p className="text-gray-600">Competitive analysis coming soon...</p>
           </Card>
+        </div>
+      )}
+
+      {activeTab === 'ai' && (
+        <div>
+          <AIAssistant customerId={parseInt(id)} />
         </div>
       )}
     </div>

@@ -34,6 +34,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+# Include AI routes
+try:
+    from routes import ai as ai_routes
+    app.include_router(ai_routes.router)
+    print("✅ AI routes loaded successfully")
+except ImportError as e:
+    print(f"⚠️  AI routes not available: {e}")
+
 # Define the absolute path to the database
 DB_PATH = str(Path(__file__).parent.parent.parent / "data" / "output" / "linkops_history.db")
 

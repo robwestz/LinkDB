@@ -1,0 +1,255 @@
+ <!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Planning GUI - Intelligent Länkplanering</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Link Planning GUI</h1>
+            <p class="subtitle">Intelligent länkplanering med semantisk analys</p>
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="stats-overview" id="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-customers">-</div>
+                <div class="stat-label">Kunder</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-links">-</div>
+                <div class="stat-label">Totalt länkar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unique-pub-domains">-</div>
+                <div class="stat-label">Pub-domäner</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unique-target-domains">-</div>
+                <div class="stat-label">Måldomäner</div>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('customers')">📊 Kunder</button>
+            <button class="tab-button" onclick="showTab('planning')">🎯 Planering</button>
+            <button class="tab-button" onclick="showTab('history')">📅 Historik</button>
+            <button class="tab-button" onclick="showTab('mainsheet')">📋 Main Sheet</button>
+        </div>
+
+        <!-- Customers Tab -->
+        <section id="customers-tab" class="tab-content active">
+            <h2>Kunder & Historik</h2>
+
+            <div class="search-box">
+                <input type="text" id="customer-search" placeholder="🔍 Sök kund...">
+            </div>
+
+            <div id="customers-list" class="customers-grid">
+                <p class="loading">Laddar kunder...</p>
+            </div>
+
+            <!-- Customer Details Modal -->
+            <div id="customer-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <div id="customer-details"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Planning Tab -->
+        <section id="planning-tab" class="tab-content">
+            <h2>Skapa Länkplan</h2>
+
+            <div class="planning-container">
+                <div class="planning-input">
+                    <h3>1. Skapa månadens planering automatiskt</h3>
+
+                    <!-- Load November Plan (CSV) -->
+                    <div class="auto-generation">
+                        <p class="help-text">📋 Ladda November-planeringen (november_plan.csv) och skapa AI-agents per kund</p>
+                        <div class="input-group">
+                            <button onclick="loadNovemberPlan()" class="btn-success" style="flex: 1;">
+                                📥 Ladda November Plan & Analysera
+                            </button>
+                        </div>
+                        <p style="font-size: 0.85em; color: rgba(255,255,255,0.8); margin-top: 10px;">
+                            Läser: pub_domain, kund, marknad, target_url, anchor_text<br>
+                            Skapar en AI-agent per kund för att komplettera saknade målsidor och ankartexter
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; margin: 20px 0; color: var(--text-light);">
+                        <strong>ELLER</strong>
+                    </div>
+
+                    <h3>Importera från Google Sheets</h3>
+
+                    <!-- Google Sheets Import -->
+                    <div class="sheets-import">
+                        <p class="help-text">Importera publiceringssajter och kunder från Google Sheets</p>
+                        <div class="input-group">
+                            <input type="text" id="sheets-url" placeholder="Google Sheets URL"
+                                   value="https://docs.google.com/spreadsheets/d/1KfON8-Y7lCW9XtYnnY9uxdmlojyCl5QxQALtn8FH5YE/edit?usp=sharing">
+                            <input type="text" id="sheet-name" placeholder="Sheet namn (t.ex. November)" value="November">
+                            <button onclick="importFromSheets()" class="btn-primary">📥 Importera</button>
+                        </div>
+                        <details style="margin-top: 10px;">
+                            <summary style="cursor: pointer; color: var(--text-light); font-size: 0.9em;">
+                                ℹ️ Kräver Google Sheets API-setup (klicka för instruktioner)
+                            </summary>
+                            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 0.9em;">
+                                <strong>För att använda Google Sheets import:</strong>
+                                <ol style="margin: 10px 0; padding-left: 20px;">
+                                    <li>Lägg credentials.json i projektmappen</li>
+                                    <li>Dela sheetet med service account email</li>
+                                    <li>Se <strong>GOOGLE_SHEETS_SETUP.md</strong> för fullständig guide</li>
+                                </ol>
+                                <p style="margin: 10px 0 0 0;"><strong>Alternativ:</strong> Använd manuell inmatning nedan (fungerar alltid!)</p>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div style="text-align: center; margin: 20px 0; color: var(--text-light);">
+                        <strong>ELLER</strong>
+                    </div>
+
+                    <!-- Manuell input -->
+                    <h3>Lägg till manuellt</h3>
+                    <p class="help-text">Lägg till kunder med publiceringssajt och valfri målsida/ankartext</p>
+
+                    <div class="manual-input">
+                        <div class="input-group">
+                            <select id="customer-select">
+                                <option value="">Välj kund...</option>
+                            </select>
+                            <input type="number" id="link-count" min="1" max="100" placeholder="Antal länkar">
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" id="pub-domain" placeholder="Publiceringssajt (OBLIGATORISK)" required>
+                            <input type="text" id="target-url" placeholder="Målsida (valfri)">
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" id="anchor-text" placeholder="Ankartext (valfri)">
+                            <button onclick="addToPlan()" class="btn-primary">Lägg till</button>
+                        </div>
+                    </div>
+
+                    <div id="plan-items" class="plan-items">
+                        <!-- Dynamiskt innehåll -->
+                    </div>
+
+                    <div class="actions">
+                        <input type="text" id="plan-name" placeholder="Plan namn (valfritt)">
+                        <button onclick="analyzeCustomerPlanning()" class="btn-secondary" id="analyze-btn" disabled>
+                            2️⃣ Analysera kunders planering (Semantisk preflight)
+                        </button>
+                        <button onclick="generatePlan()" class="btn-success" id="generate-btn" disabled>
+                            3️⃣ Generera plan
+                        </button>
+                    </div>
+
+                    <div id="workflow-status" style="margin-top: 20px; padding: 15px; background: var(--light); border-radius: 8px; display: none;">
+                        <h4>📊 Workflow Status:</h4>
+                        <div id="status-content"></div>
+                    </div>
+                </div>
+
+                <div id="volume-analysis" class="volume-analysis">
+                    <h3>Volymanalys</h3>
+                    <div id="volume-results">
+                        <p class="help-text">Lägg till kunder och klicka "Analysera volym"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Results -->
+            <div id="plan-results" class="plan-results" style="display: none;">
+                <h3>📋 Genererad Plan</h3>
+                <div id="plan-summary"></div>
+                <div id="plan-details"></div>
+            </div>
+        </section>
+
+        <!-- History Tab -->
+        <section id="history-tab" class="tab-content">
+            <h2>Månadshistorik</h2>
+
+            <div class="input-group">
+                <select id="history-customer-select">
+                    <option value="">Välj kund för historik...</option>
+                </select>
+                <button onclick="loadHistory()" class="btn-primary">Visa historik</button>
+            </div>
+
+            <div id="monthly-history" class="monthly-history">
+                <p class="help-text">Välj en kund för att se månadshistorik</p>
+            </div>
+        </section>
+
+        <!-- Main Sheet Tab -->
+        <section id="mainsheet-tab" class="tab-content">
+            <h2>📋 Main Sheet Viewer</h2>
+            <p class="help-text">Visar alla länkar från main_sheet.xlsx (4829 rader)</p>
+
+            <div class="input-group">
+                <input type="text" id="mainsheet-search" placeholder="Sök kund, domän, URL eller ankartext..." style="flex: 2;">
+                <select id="mainsheet-filter-column">
+                    <option value="">Alla kolumner</option>
+                    <option value="canonical_root">Canonical Root</option>
+                    <option value="pub_page_url">Pub URL</option>
+                    <option value="target_url">Target URL</option>
+                    <option value="anchor_text">Anchor Text</option>
+                    <option value="brand">Brand</option>
+                </select>
+                <button onclick="searchMainSheet()" class="btn-primary">🔍 Sök</button>
+                <button onclick="loadMainSheet()" class="btn-secondary">🔄 Visa alla</button>
+            </div>
+
+            <div style="margin: 20px 0; padding: 15px; background: var(--light); border-radius: 8px;">
+                <div id="mainsheet-stats" style="display: flex; gap: 20px; justify-content: center;">
+                    <div><strong>Totalt:</strong> <span id="mainsheet-total">-</span> länkar</div>
+                    <div><strong>Visas:</strong> <span id="mainsheet-shown">-</span></div>
+                    <div><strong>Unika kunder:</strong> <span id="mainsheet-unique-customers">-</span></div>
+                </div>
+            </div>
+
+            <div id="mainsheet-table-container" style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                <table id="mainsheet-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                    <thead style="position: sticky; top: 0; background: var(--primary); color: white;">
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">#</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Canonical Root</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Brand</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Pub URL</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Target URL</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Anchor Text</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Published</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mainsheet-tbody">
+                        <tr><td colspan="8" style="text-align: center; padding: 20px;">Klicka "Visa alla" eller "Sök" för att ladda data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Bearbetar...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+

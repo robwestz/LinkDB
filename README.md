@@ -1,304 +1,183 @@
-# LinkDB - Advanced SEO Link Analysis with AI-powered Insights
+# LinkDB - Advanced SEO Link Planning & Analysis System
 
-> Transform your SEO strategy with intelligent link analysis and competitive insights
+## 🎯 Overview
 
-**LinkDB** is an enterprise-grade SEO link analysis platform that leverages artificial intelligence to provide deep insights into your backlink profile, competitor strategies, and domain authority. With advanced analytics across four key dimensions, LinkDB helps businesses maximize their SEO ROI with data-driven decisions.
+LinkDB is an advanced SEO link planning and analysis system designed to automate and optimize backlink strategies using semantic SEO principles and topical authority concepts. The system helps plan, track, and analyze link building campaigns with AI-powered insights.
 
-**💰 Annual ROI: €25,000+** - Optimize your link-building strategy and outperform competitors with intelligent insights.
+## ✨ Key Features
 
----
+### 📊 Link Planning System
+- **Automatic Monthly Planning**: Generate complete monthly link plans automatically
+- **Semantic Link Coordination**: Plan links that work together to strengthen topical authority
+- **Customer Database Management**: Track all links for each customer with history
+- **Monthly History Viewer**: View and analyze links grouped by publication month
 
-## 🚀 Key Features
+### 🤖 AI-Powered Intelligence
+- **Semantic Analysis**: AI agents analyze link patterns and suggest optimal anchor texts
+- **Target URL Optimization**: Smart selection of target pages based on site structure
+- **Preflight Validation**: Self-correcting system validates plans before execution
+- **Customer-Specific Agents**: AI agents created per customer for personalized planning
 
-### Four Powerful Analyzers
+### 📈 Analytics & Insights
+- **Link History Analysis**: Track performance and patterns over time
+- **Temporal Pattern Analysis**: Identify trends in link building strategies
+- **Anchor Quality Analysis**: Evaluate anchor text diversity and quality
+- **Domain Quality Analysis**: Assess the quality of publication domains
+- **Competitive Comparison**: Compare strategies across customers
 
-#### 1. **Anchor Text Analyzer**
-- Comprehensive anchor text distribution analysis
-- Over-optimization detection and alerts
-- Natural link profile recommendations
-- Brand vs. keyword anchor ratio tracking
-- Competitor anchor text comparison
+### 🔄 Integration
+- **Google Sheets Integration**: Import/export data directly from Google Sheets
+- **Airtable CSV Export**: Export customer data for Airtable workflows
+- **Customer Database Builder**: Automatically generate per-customer databases
 
-#### 2. **Temporal Analyzer**
-- Link velocity tracking and trend analysis
-- Seasonal pattern detection
-- Link growth rate monitoring
-- Historical backlink timeline visualization
-- Anomaly detection for unnatural link patterns
+## 🏗️ Project Structure
 
-#### 3. **Domain Authority Analyzer**
-- Domain authority scoring and tracking
-- Trust flow and citation flow metrics
-- Domain quality assessment
-- Authority distribution across your backlink profile
-- Link source categorization (high/medium/low authority)
+```
+linkdb/
+├── app/                          # Core application modules
+│   ├── analyzers/               # Analysis tools
+│   │   ├── anchor_quality_analyzer.py
+│   │   ├── domain_quality_analyzer.py
+│   │   ├── temporal_pattern_analyzer.py
+│   │   ├── link_history_analyzer.py
+│   │   └── monthly_link_viewer.py
+│   ├── planning/                # Planning system
+│   │   ├── basic_plan_generator.py
+│   │   ├── customer_grouper.py
+│   │   ├── db_manager.py
+│   │   └── volume_detector.py
+│   ├── validators/              # Validation tools
+│   │   └── target_url_validator.py
+│   ├── build_all_customer_dbs.py
+│   ├── build_history_db.py
+│   └── schema.sql
+├── gui/                         # GUI application
+│   ├── backend/
+│   │   └── app.py
+│   └── gui_app.py
+├── data/                        # Data files
+│   ├── input/
+│   └── output/
+├── docs/                        # Documentation
+│   ├── PRODUCT_VISION_2025.md
+│   ├── SEMANTIC_SYSTEM_ARCHITECTURE.md
+│   └── GUI_SPECIFICATION_FOR_GEMINI.md
+└── templates/                   # Web templates
 
-#### 4. **Competitive Intelligence Analyzer**
-- Competitor backlink gap analysis
-- Market share visualization
-- Link acquisition opportunity identification
-- Competitor strategy insights
-- Industry benchmark comparisons
+```
 
----
+## 🚀 Getting Started
 
-## 🛠️ Tech Stack
+### Prerequisites
+- Python 3.8+
+- SQLite3
+- Google Sheets API credentials (optional, for integration)
 
-**Backend:**
-- **Python** - Core application logic
-- **FastAPI** - High-performance REST API framework
-- **SQLAlchemy** - Database ORM
-- **Celery** - Asynchronous task processing
-- **Redis** - Caching and task queue
+### Installation
 
-**Frontend:**
-- **React** - Modern UI framework
-- **Tailwind CSS** - Utility-first styling
-- **Recharts** - Data visualization
-- **Axios** - API communication
-
-**AI/ML:**
-- **scikit-learn** - Machine learning models
-- **pandas** - Data analysis
-- **NumPy** - Numerical computing
-
-**Infrastructure:**
-- **Docker** - Containerization
-- **PostgreSQL** - Primary database
-- **Nginx** - Reverse proxy
-
----
-
-## 📋 Prerequisites
-
-Before you begin, ensure you have the following installed:
-- Python 3.9+
-- Node.js 16+
-- PostgreSQL 13+
-- Redis 6+
-- Docker (optional, for containerized deployment)
-
----
-
-## 🚀 Quick Start
-
-### 1. Clone the Repository
-
+1. Clone the repository:
 ```bash
 git clone https://github.com/robwestz/LinkDB.git
 cd LinkDB
 ```
 
-### 2. Backend Setup
-
+2. Create virtual environment:
 ```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env with your configuration
-
-# Run database migrations
-alembic upgrade head
-
-# Start the backend server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+python -m venv .venv
+.venv\Scripts\activate  # On Windows
 ```
 
-### 3. Frontend Setup
-
+3. Install dependencies:
 ```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Configure environment variables
-cp .env.example .env.local
-# Edit .env.local with your API endpoint
-
-# Start the development server
-npm run dev
+pip install -r requirements_planning.txt
 ```
 
-### 4. Access the Application
+### Quick Start
 
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000
-- **API Documentation:** http://localhost:8000/docs
-
----
-
-## 📊 Usage Examples
-
-### Analyzing Your Backlink Profile
-
-```python
-from linkdb import LinkAnalyzer
-
-# Initialize analyzer
-analyzer = LinkAnalyzer(api_key="your_api_key")
-
-# Analyze domain
-results = analyzer.analyze_domain("example.com")
-
-# Get anchor text insights
-anchor_analysis = results.anchor_analyzer()
-print(f"Anchor diversity score: {anchor_analysis.diversity_score}")
-
-# Check temporal patterns
-temporal_analysis = results.temporal_analyzer()
-print(f"Link velocity: {temporal_analysis.velocity} links/month")
-```
-
-### Competitive Analysis
-
-```python
-# Compare with competitors
-competitive_analysis = analyzer.compare_domains([
-    "your-domain.com",
-    "competitor1.com",
-    "competitor2.com"
-])
-
-# Identify link gaps
-gaps = competitive_analysis.find_opportunities()
-print(f"Found {len(gaps)} link opportunities")
-```
-
----
-
-## 🎯 Use Cases
-
-- **SEO Agencies:** Manage multiple client campaigns with comprehensive reporting
-- **Enterprise SEO Teams:** Monitor large-scale link portfolios and competitor activity
-- **Content Marketers:** Identify high-value link acquisition opportunities
-- **Digital Marketing Managers:** Track ROI and optimize link-building budgets
-- **E-commerce Businesses:** Improve organic rankings and drive qualified traffic
-
----
-
-## 📈 Benefits
-
-✅ **Save Time:** Automated analysis replaces hours of manual work  
-✅ **Data-Driven Decisions:** AI-powered insights for smarter strategy  
-✅ **Competitive Edge:** Stay ahead with real-time competitor intelligence  
-✅ **Risk Management:** Detect and fix toxic backlinks before penalties  
-✅ **ROI Optimization:** Focus resources on high-impact opportunities  
-✅ **Scalable:** Handle portfolios from single sites to enterprise-level  
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the backend directory:
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/linkdb
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# API Keys
-SEO_API_KEY=your_seo_api_key
-OPENAI_API_KEY=your_openai_key
-
-# Security
-SECRET_KEY=your_secret_key_here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:8000
-```
-
----
-
-## 🧪 Testing
-
+#### 1. Initialize Planning System
 ```bash
-# Backend tests
-cd backend
-pytest tests/ -v --cov=app
-
-# Frontend tests
-cd frontend
-npm test
-
-# E2E tests
-npm run test:e2e
+python init_planning_system.py
 ```
 
----
+#### 2. Build Customer Databases
+```bash
+python app/build_all_customer_dbs.py
+```
 
-## 📚 API Documentation
+#### 3. Launch GUI
+```bash
+start_gui.bat
+# Or: python gui_app.py
+```
 
-Once the backend is running, access the interactive API documentation:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
+#### 4. Export Data
+```bash
+python export_customer_by_id.py
+```
 
----
+## 📖 Documentation
+
+- **[Planning System Spec](PLANNING_SYSTEM_SPEC.md)** - Complete planning system documentation
+- **[Planning Quickstart](PLANNING_QUICKSTART.md)** - Quick start guide
+- **[GUI Documentation](GUI_README.md)** - GUI usage guide
+- **[Export Guide](EXPORT_README.md)** - Data export documentation
+- **[Google Sheets Setup](GOOGLE_SHEETS_SETUP.md)** - Integration setup
+- **[AI Planning Guide](AI_PLANNING_GUIDE.md)** - AI features documentation
+
+## 🔧 Core Workflows
+
+### Planning Workflow
+1. Load monthly data from Google Sheets
+2. System detects link volume per customer
+3. AI analyzes semantic opportunities
+4. Generate coordinated link plan
+5. Preflight validation and self-correction
+6. Export to production format
+
+### Analysis Workflow
+1. View customer link history by month
+2. Analyze anchor text patterns
+3. Evaluate domain quality
+4. Compare performance metrics
+5. Generate insights report
+
+## 🎨 GUI Features
+
+The GUI application provides:
+- **Main Sheet Viewer**: View and manage the main planning sheet
+- **Planning Tab**: Create and manage monthly plans
+- **Customer Management**: Add/edit customer links
+- **Preflight Analysis**: Validate plans before execution
+- **Export Tools**: Export to various formats
+
+## 🔐 Security & Privacy
+
+- All database files (*.db) are excluded from version control
+- Credentials and API keys should be stored in `.env` files
+- Customer data is stored locally and not transmitted
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
+This is a private project. For questions or issues, contact the project maintainer.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Private/Proprietary - All rights reserved
+
+## 👤 Author
+
+**robwestz**
+
+## 🔗 Links
+
+- Repository: https://github.com/robwestz/LinkDB
+- Planning Document: [Google Sheets](https://docs.google.com/spreadsheets/d/1KfON8-Y7lCW9XtYnnY9uxdmlojyCl5QxQALtn8FH5YE/edit?usp=sharing)
+
+## 📊 Project Status
+
+Active development - Advanced semantic planning features in progress
 
 ---
 
-## 🌟 Support
+*Built with Python, SQLite, and AI-powered semantic analysis*
 
-- **Documentation:** [docs.linkdb.com](https://docs.linkdb.com)
-- **Issues:** [GitHub Issues](https://github.com/robwestz/LinkDB/issues)
-- **Email:** support@linkdb.com
-- **Discord:** [Join our community](https://discord.gg/linkdb)
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Advanced AI-powered link quality scoring
-- [ ] Real-time link monitoring and alerts
-- [ ] Integration with Google Search Console
-- [ ] Mobile app for iOS and Android
-- [ ] White-label solution for agencies
-- [ ] Multi-language support
-
----
-
-## 📊 Performance Metrics
-
-LinkDB is built for scale:
-- ⚡ Analyze 10,000+ backlinks in under 30 seconds
-- 🚀 Process 1M+ links per day
-- 📈 99.9% uptime SLA
-- 🔒 Enterprise-grade security and data encryption
-
----
-
-**Made with ❤️ by the LinkDB Team**
-
-*Elevate your SEO strategy with intelligent link analysis*

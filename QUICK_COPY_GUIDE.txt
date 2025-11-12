@@ -1,0 +1,79 @@
+════════════════════════════════════════════════════════════════
+  SNABBGUIDE: SKAPA PROJEKTKOPIA
+════════════════════════════════════════════════════════════════
+
+🚀 ENKLASTE SÄTTET (2 steg):
+
+1. Dubbelklicka på:  create_copy.bat
+   → Följ instruktionerna
+
+2. Gå till den nya mappen och dubbelklicka på:  setup_dev_environment.bat
+   → Automatisk setup!
+
+✅ KLART! Nu kan du utveckla fritt!
+
+────────────────────────────────────────────────────────────────
+
+💻 VIA KOMMANDORAD (4 steg):
+
+1. python create_project_copy.py
+2. cd ..\linkdb_dev_20250205
+3. setup_dev_environment.bat
+4. .venv\Scripts\activate
+
+────────────────────────────────────────────────────────────────
+
+📦 VAD KOPIERAS:
+
+✅ All Python-kod
+✅ Alla databaser
+✅ All data
+✅ Dokumentation
+
+❌ .venv (skapas ny)
+❌ Cache
+❌ IDE-inställningar
+
+────────────────────────────────────────────────────────────────
+
+🎯 ANVÄNDNING:
+
+Skapa kopia → Utveckla fritt → Testa → Kopiera tillbaka till original
+
+────────────────────────────────────────────────────────────────
+
+💡 VANLIGA KOMMANDON:
+
+# Skapa kopia
+python create_project_copy.py
+
+# Aktivera miljö (i kopian)
+.venv\Scripts\activate
+
+# Testa
+python show_columns.py
+
+# Exportera
+python export_to_airtable_csv.py
+
+────────────────────────────────────────────────────────────────
+
+📚 MER INFO:
+
+GUIDE_PROJECT_COPY.md              - Detaljerad guide
+COPY_QUICKSTART.md                 - Snabbreferens
+README_OVERVIEW.md                 - Projektöversikt
+IMPLEMENT_IN_OTHER_PROJECTS.md    - Använd i andra projekt!
+
+────────────────────────────────────────────────────────────────
+
+🌟 ANVÄND I ANDRA PROJEKT:
+
+1. Kopiera copy_any_project.py till ditt projekt
+2. Kör: python copy_any_project.py
+3. Klart! Fungerar med VILKET projekt som helst!
+
+Se IMPLEMENT_IN_OTHER_PROJECTS.md för detaljer
+
+════════════════════════════════════════════════════════════════
+

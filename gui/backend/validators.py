@@ -26,8 +26,8 @@ class CustomerQuery(BaseModel):
 class DateRangeQuery(BaseModel):
     """Validation for date range queries."""
 
-    from_date: Optional[str] = Field(None, regex=r'^\d{4}-\d{2}$', description="Format: YYYY-MM")
-    to_date: Optional[str] = Field(None, regex=r'^\d{4}-\d{2}$', description="Format: YYYY-MM")
+    from_date: Optional[str] = Field(None, pattern=r'^\d{4}-\d{2}$', description="Format: YYYY-MM")
+    to_date: Optional[str] = Field(None, pattern=r'^\d{4}-\d{2}$', description="Format: YYYY-MM")
 
     @validator('from_date', 'to_date')
     def validate_date_format(cls, v):
@@ -103,7 +103,7 @@ class LinkCreateValidation(BaseModel):
     pub_domain: str = Field(..., min_length=3, max_length=255)
     target_url: str = Field(..., min_length=5, max_length=2048)
     anchor_text: str = Field(..., min_length=1, max_length=500)
-    published_at: str = Field(..., regex=r'^\d{4}-\d{2}-\d{2}$')
+    published_at: str = Field(..., pattern=r'^\d{4}-\d{2}-\d{2}$')
 
     @validator('pub_domain', 'canonical_root')
     def validate_domain(cls, v):
@@ -148,7 +148,7 @@ class LinkUpdateValidation(BaseModel):
     pub_domain: Optional[str] = Field(None, min_length=3, max_length=255)
     target_url: Optional[str] = Field(None, min_length=5, max_length=2048)
     anchor_text: Optional[str] = Field(None, min_length=1, max_length=500)
-    published_at: Optional[str] = Field(None, regex=r'^\d{4}-\d{2}-\d{2}$')
+    published_at: Optional[str] = Field(None, pattern=r'^\d{4}-\d{2}-\d{2}$')
 
     @validator('pub_domain')
     def validate_domain(cls, v):
@@ -195,10 +195,10 @@ class LinkUpdateValidation(BaseModel):
 class ComparisonQuery(BaseModel):
     """Validation for period comparison queries."""
 
-    period1_from: str = Field(..., regex=r'^\d{4}-\d{2}$')
-    period1_to: str = Field(..., regex=r'^\d{4}-\d{2}$')
-    period2_from: str = Field(..., regex=r'^\d{4}-\d{2}$')
-    period2_to: str = Field(..., regex=r'^\d{4}-\d{2}$')
+    period1_from: str = Field(..., pattern=r'^\d{4}-\d{2}$')
+    period1_to: str = Field(..., pattern=r'^\d{4}-\d{2}$')
+    period2_from: str = Field(..., pattern=r'^\d{4}-\d{2}$')
+    period2_to: str = Field(..., pattern=r'^\d{4}-\d{2}$')
 
     @validator('period1_from', 'period1_to', 'period2_from', 'period2_to')
     def validate_date_format(cls, v):

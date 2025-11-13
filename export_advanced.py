@@ -136,15 +136,17 @@ Advanced export options for Airtable CSV export.
 This script provides more granular control over what gets exported.
 """
 from __future__ import annotations
-import sqlite3
-import csv
-from pathlib import Path
-from datetime import datetime
-from rich import print
-from rich.prompt import Prompt, Confirm
-from rich.table import Table
-from rich.console import Console
+
 import argparse
+import csv
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+from rich import print
+from rich.console import Console
+from rich.prompt import Confirm, Prompt
+from rich.table import Table
 
 ROOT = Path(__file__).resolve().parent
 CUSTOMERS_DIR = ROOT / "data" / "output" / "customers"

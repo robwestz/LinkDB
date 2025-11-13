@@ -1,9 +1,12 @@
 # app/history_repo.py
 from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
+
 import tldextract
+
 
 def _norm_domain(x: str) -> str:
     if not isinstance(x, str) or not x.strip():
@@ -12,11 +15,13 @@ def _norm_domain(x: str) -> str:
     reg = ext.registered_domain
     return reg or x.strip().lower()
 
+
 class HistoryRepo:
     """
     Read-only repo mot linkops_history.db.
     Använd i huvudprojektet för att hämta kund-kontekst till AI-planeringen.
     """
+
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
         self.con = sqlite3.connect(self.db_path)
@@ -28,11 +33,13 @@ class HistoryRepo:
     def get_customer_by_root(self, canonical_root: str) -> Optional[Dict[str, Any]]:
         row = self.con.execute(
             "SELECT id, canonical_root, brand FROM customers WHERE canonical_root = ?",
-            (canonical_root.strip(),)
+            (canonical_root.strip(),),
         ).fetchone()
         return dict(row) if row else None
 
-    def get_customer_by_client_domain(self, client_domain_or_url: str) -> Optional[Dict[str, Any]]:
+    def get_customer_by_client_domain(
+        self, client_domain_or_url: str
+    ) -> Optional[Dict[str, Any]]:
         """
         Tar emot t.ex. 'https://flaxcasino.se/' eller 'flaxcasino.se' och returnerar customers-raden.
         Matchar mot customers.canonical_root registrerad domän.
@@ -75,7 +82,9 @@ class HistoryRepo:
         rows = self.con.execute(q, (customer_id, top_n)).fetchall()
         return [{"anchor_text": r["anchor_text"], "count": int(r["c"])} for r in rows]
 
-    def anchor_samples(self, customer_id: int, top_n: int = 200) -> List[Dict[str, Any]]:
+    def anchor_samples(
+        self, customer_id: int, top_n: int = 200
+    ) -> List[Dict[str, Any]]:
         """
         Råhistorik per target_url: toppankare + frekvens. Låt AI själv avgöra exact/partial/brand/generic.
         """
@@ -94,7 +103,9 @@ class HistoryRepo:
             by_url.setdefault(r["target_url"], []).append(
                 {"anchor_text": r["anchor_text"], "count": int(r["c"])}
             )
-        return [{"target_url": url, "anchors": anchors} for url, anchors in by_url.items()]
+        return [
+            {"target_url": url, "anchors": anchors} for url, anchors in by_url.items()
+        ]
 
     def anchor_mix_guess(self, customer_id: int) -> Dict[str, float]:
         """
@@ -107,7 +118,7 @@ class HistoryRepo:
         brand = (brand_row["brand"] or "").lower() if brand_row else ""
         rows = self.con.execute(
             "SELECT anchor_text FROM links_history WHERE customer_id=? AND anchor_text IS NOT NULL",
-            (customer_id,)
+            (customer_id,),
         ).fetchall()
         totals = {"brand": 0, "exact": 0, "partial": 0, "generic": 0}
         total = 0
@@ -131,18 +142,17 @@ class HistoryRepo:
 
     def customer_summary(self, customer_id: int) -> Dict[str, Any]:
         base = self.con.execute(
-            "SELECT id, canonical_root, brand FROM customers WHERE id=?",
-            (customer_id,)
+            "SELECT id, canonical_root, brand FROM customers WHERE id=?", (customer_id,)
         ).fetchone()
         if not base:
             return {}
         total_links = self.con.execute(
             "SELECT COUNT(*) AS c FROM links_history WHERE customer_id=?",
-            (customer_id,)
+            (customer_id,),
         ).fetchone()["c"]
         unique_pub = self.con.execute(
             "SELECT COUNT(DISTINCT pub_domain) AS d FROM links_history WHERE customer_id=?",
-            (customer_id,)
+            (customer_id,),
         ).fetchone()["d"]
         return {
             "customer_id": base["id"],
@@ -158,7 +168,9 @@ class HistoryRepo:
     # ------------------------
     # AI-payload för en kund
     # ------------------------
-    def build_customer_payload(self, client_domain_or_url: str) -> Optional[Dict[str, Any]]:
+    def build_customer_payload(
+        self, client_domain_or_url: str
+    ) -> Optional[Dict[str, Any]]:
         cust = self.get_customer_by_client_domain(client_domain_or_url)
         if not cust:
             return None
@@ -167,9 +179,13 @@ class HistoryRepo:
             "customer_domain": _norm_domain(summary["canonical_root"]),
             "brand": summary["brand"],
             "canonical_root": summary["canonical_root"],
-            "priority_pages": summary["priority_pages"],                      # url + priority_score
-            "historical_common_anchors": summary["historical_common_anchors"],# toppankare globalt
-            "historical_anchor_samples_per_url": self.anchor_samples(summary["customer_id"], top_n=200),
+            "priority_pages": summary["priority_pages"],  # url + priority_score
+            "historical_common_anchors": summary[
+                "historical_common_anchors"
+            ],  # toppankare globalt
+            "historical_anchor_samples_per_url": self.anchor_samples(
+                summary["customer_id"], top_n=200
+            ),
             "meta": {
                 "total_links": summary["total_links"],
                 "unique_publication_domains": summary["unique_publication_domains"],

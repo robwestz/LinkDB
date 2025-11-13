@@ -1,10 +1,12 @@
 """
 Snabb projektkopia - ingen interaktion
 """
+
 from __future__ import annotations
+
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Konfiguration
 CURRENT_PROJECT = Path(r"C:\Users\robin\PycharmProjects\linkdb")
@@ -14,22 +16,38 @@ destination = parent_dir / project_name
 
 # Exkludera
 EXCLUDE_PATTERNS = [
-    '__pycache__', '*.pyc', '*.pyo', '*.pyd', '.pytest_cache',
-    '.venv', 'venv', 'env', '.env', '.git', '.idea', '.vscode',
-    '*.db-wal', '*.db-shm', 'node_modules', '.DS_Store', 'Thumbs.db',
+    "__pycache__",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    "env",
+    ".env",
+    ".git",
+    ".idea",
+    ".vscode",
+    "*.db-wal",
+    "*.db-shm",
+    "node_modules",
+    ".DS_Store",
+    "Thumbs.db",
 ]
+
 
 def should_exclude(path: Path) -> bool:
     """Kontrollera om en fil/mapp ska exkluderas."""
     path_str = str(path)
     for pattern in EXCLUDE_PATTERNS:
-        if pattern.startswith('*.'):
+        if pattern.startswith("*."):
             if path.suffix == pattern[1:]:
                 return True
         else:
             if pattern in path_str or pattern == path.name:
                 return True
     return False
+
 
 print(f"Kopierar från: {CURRENT_PROJECT}")
 print(f"Till: {destination}")
@@ -42,15 +60,15 @@ copied = 0
 skipped = 0
 
 # Kopiera filer
-for item in CURRENT_PROJECT.rglob('*'):
+for item in CURRENT_PROJECT.rglob("*"):
     if should_exclude(item):
         skipped += 1
         continue
-    
+
     try:
         rel_path = item.relative_to(CURRENT_PROJECT)
         dest_path = destination / rel_path
-        
+
         if item.is_dir():
             dest_path.mkdir(parents=True, exist_ok=True)
         else:
@@ -93,7 +111,7 @@ python show_columns.py
 Original: {CURRENT_PROJECT}
 """
 
-(destination / "README_COPY.md").write_text(readme_content, encoding='utf-8')
+(destination / "README_COPY.md").write_text(readme_content, encoding="utf-8")
 
 # Skapa setup-script
 setup_content = """@echo off
@@ -107,7 +125,7 @@ echo Klart!
 pause
 """
 
-(destination / "setup_dev_environment.bat").write_text(setup_content, encoding='utf-8')
+(destination / "setup_dev_environment.bat").write_text(setup_content, encoding="utf-8")
 
 print("📝 Skapade extra filer:")
 print("   - README_COPY.md")
@@ -116,4 +134,3 @@ print()
 print("🚀 Nästa steg:")
 print(f"   cd {destination}")
 print("   setup_dev_environment.bat")
-

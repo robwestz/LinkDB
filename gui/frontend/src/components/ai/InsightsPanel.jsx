@@ -11,12 +11,12 @@ const InsightsPanel = ({ customerId }) => {
 
     setLoading(true);
     fetch(`http://localhost:8000/api/ai/insights/${customerId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setInsights(data.data.insights || []);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Failed to load insights:', err);
         setLoading(false);
       });

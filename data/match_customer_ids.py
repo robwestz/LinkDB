@@ -1,9 +1,11 @@
 """
 Match customer_id from database to client_index
 """
+
 import sqlite3
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 # Paths
 data_dir = Path(__file__).parent
@@ -24,7 +26,7 @@ matched = 0
 not_found = []
 
 for idx, row in df.iterrows():
-    customer_name = row.get('customer_name', '')
+    customer_name = row.get("customer_name", "")
 
     if pd.isna(customer_name) or not customer_name:
         continue
@@ -35,25 +37,25 @@ for idx, row in df.iterrows():
     # Method 1: Exact match on canonical_root
     customer = con.execute(
         "SELECT id, canonical_root FROM customers WHERE canonical_root = ?",
-        (customer_name,)
+        (customer_name,),
     ).fetchone()
 
     # Method 2: LIKE match on canonical_root
     if not customer:
         customer = con.execute(
             "SELECT id, canonical_root FROM customers WHERE canonical_root LIKE ?",
-            (f'%{customer_name}%',)
+            (f"%{customer_name}%",),
         ).fetchone()
 
     # Method 3: Match on brand
     if not customer:
         customer = con.execute(
             "SELECT id, canonical_root FROM customers WHERE brand LIKE ?",
-            (f'%{customer_name}%',)
+            (f"%{customer_name}%",),
         ).fetchone()
 
     if customer:
-        df.at[idx, 'customer_id'] = customer['id']
+        df.at[idx, "customer_id"] = customer["id"]
         matched += 1
         print(f"✓ {customer_name} → customer_id: {customer['id']}")
     else:
@@ -77,4 +79,3 @@ if not_found:
     print(f"\nEj funna kunder:")
     for name in not_found:
         print(f"  - {name}")
-

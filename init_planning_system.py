@@ -1,21 +1,24 @@
 """
 Initialize Planning System - Setup och demo av planeringssystemet
 """
-from pathlib import Path
+
 import sys
+from pathlib import Path
 
 # Lägg till app i path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.planning.db_manager import init_planning_db
-from app.planning.customer_grouper import CustomerGrouper, demo as grouper_demo
 from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
+from app.planning.customer_grouper import CustomerGrouper
+from app.planning.customer_grouper import demo as grouper_demo
+from app.planning.db_manager import init_planning_db
 
 
 def main():
     """Huvudfunktion för att initialisera och demonstrera systemet."""
 
-    print("""
+    print(
+        """
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
 ║        INTELLIGENT LINK PLANNING SYSTEM - INITIALIZATION        ║
@@ -24,7 +27,8 @@ def main():
 ║  på topical authority och historisk länkdata.                   ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
-    """)
+    """
+    )
 
     print("\n🚀 Starting initialization...\n")
 
@@ -80,9 +84,9 @@ def main():
         print("⚠️  History database not found, skipping analysis")
 
     # Sammanfattning
-    print("\n\n" + "="*70)
+    print("\n\n" + "=" * 70)
     print("INITIALIZATION COMPLETE")
-    print("="*70)
+    print("=" * 70)
 
     print("\n✅ Planning system foundation is ready!")
 
@@ -113,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

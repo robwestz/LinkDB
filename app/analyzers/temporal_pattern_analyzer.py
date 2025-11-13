@@ -9,19 +9,22 @@ Denna modul analyserar:
 - Spike detection (onaturliga toppar)
 - Konsistens i länkbyggnad
 """
+
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
-from collections import defaultdict
-from datetime import datetime, timedelta
-import sqlite3
+
 import math
+import sqlite3
 import statistics
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
 class TemporalMetrics:
     """Temporala metrics för länkbyggnad."""
+
     customer_id: int
     canonical_root: str
 
@@ -79,8 +82,7 @@ class TemporalPatternAnalyzer:
 
         # Hämta customer info
         customer = con.execute(
-            "SELECT canonical_root FROM customers WHERE id = ?",
-            (customer_id,)
+            "SELECT canonical_root FROM customers WHERE id = ?", (customer_id,)
         ).fetchone()
 
         if not customer:
@@ -88,12 +90,15 @@ class TemporalPatternAnalyzer:
             return None
 
         # Hämta alla länkar med datum
-        links = con.execute("""
+        links = con.execute(
+            """
             SELECT published_at, created_at
             FROM links_history
             WHERE customer_id = ?
             ORDER BY published_at, created_at
-        """, (customer_id,)).fetchall()
+        """,
+            (customer_id,),
+        ).fetchall()
 
         con.close()
 
@@ -103,11 +108,11 @@ class TemporalPatternAnalyzer:
         # Parse dates
         dates = []
         for link in links:
-            date_str = link['published_at'] or link['created_at']
+            date_str = link["published_at"] or link["created_at"]
             if date_str:
                 try:
                     if isinstance(date_str, str):
-                        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                        dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                         # Remove timezone info for easier calculation
                         dt = dt.replace(tzinfo=None)
                         dates.append(dt)
@@ -166,7 +171,7 @@ class TemporalPatternAnalyzer:
 
         return TemporalMetrics(
             customer_id=customer_id,
-            canonical_root=customer['canonical_root'],
+            canonical_root=customer["canonical_root"],
             total_links=total_links,
             first_link_date=first_date,
             last_link_date=last_date,
@@ -188,18 +193,20 @@ class TemporalPatternAnalyzer:
             spike_months=spike_months,
             warnings=warnings,
             insights=insights,
-            health_score=health_score
+            health_score=health_score,
         )
 
     def _calculate_monthly_distribution(self, dates: List[datetime]) -> Dict[str, int]:
         """Gruppera länkar per månad."""
         monthly = defaultdict(int)
         for dt in dates:
-            month_key = dt.strftime('%Y-%m')
+            month_key = dt.strftime("%Y-%m")
             monthly[month_key] += 1
         return dict(monthly)
 
-    def _analyze_velocity_trend(self, monthly_dist: Dict[str, int]) -> Tuple[str, float]:
+    def _analyze_velocity_trend(
+        self, monthly_dist: Dict[str, int]
+    ) -> Tuple[str, float]:
         """Analysera om velocity ökar, minskar eller är stabil."""
         if len(monthly_dist) < 3:
             return "insufficient_data", 0.0
@@ -231,7 +238,9 @@ class TemporalPatternAnalyzer:
 
         return trend, slope
 
-    def _calculate_consistency(self, monthly_dist: Dict[str, int]) -> Tuple[float, float]:
+    def _calculate_consistency(
+        self, monthly_dist: Dict[str, int]
+    ) -> Tuple[float, float]:
         """
         Beräkna konsistens i länkbyggnad.
         Använder coefficient of variation (CV).
@@ -263,7 +272,7 @@ class TemporalPatternAnalyzer:
         gaps = []
 
         for i in range(1, len(sorted_dates)):
-            gap_days = (sorted_dates[i] - sorted_dates[i-1]).days
+            gap_days = (sorted_dates[i] - sorted_dates[i - 1]).days
             gaps.append(gap_days)
 
         longest_gap = max(gaps) if gaps else 0
@@ -303,8 +312,12 @@ class TemporalPatternAnalyzer:
         return has_spikes, sorted(spikes, key=lambda x: x[1], reverse=True)
 
     def _generate_warnings(
-        self, links_per_month: float, cv: float,
-        longest_gap: int, has_spikes: bool, velocity_trend: str
+        self,
+        links_per_month: float,
+        cv: float,
+        longest_gap: int,
+        has_spikes: bool,
+        velocity_trend: str,
     ) -> List[str]:
         """Generera varningar."""
         warnings = []
@@ -342,9 +355,7 @@ class TemporalPatternAnalyzer:
             )
 
         if velocity_trend == "decreasing":
-            warnings.append(
-                "📉 Vikande trend - länkhastigheten minskar över tid"
-            )
+            warnings.append("📉 Vikande trend - länkhastigheten minskar över tid")
 
         if not warnings:
             warnings.append("✅ Temporalt mönster ser naturligt ut")
@@ -352,8 +363,11 @@ class TemporalPatternAnalyzer:
         return warnings
 
     def _generate_insights(
-        self, monthly_dist: Dict[str, int], velocity_trend: str,
-        consistency_score: float, best_month: Tuple[str, int]
+        self,
+        monthly_dist: Dict[str, int],
+        velocity_trend: str,
+        consistency_score: float,
+        best_month: Tuple[str, int],
     ) -> List[str]:
         """Generera insights."""
         insights = []
@@ -375,15 +389,17 @@ class TemporalPatternAnalyzer:
                 f"📊 Senaste 3 månaderna: Genomsnitt {recent_avg:.1f} länkar/månad"
             )
 
-        insights.append(
-            f"🏆 Bästa månad: {best_month[0]} med {best_month[1]} länkar"
-        )
+        insights.append(f"🏆 Bästa månad: {best_month[0]} med {best_month[1]} länkar")
 
         return insights
 
     def _calculate_health_score(
-        self, consistency: float, has_spikes: bool,
-        cv: float, longest_gap: int, days_active: int
+        self,
+        consistency: float,
+        has_spikes: bool,
+        cv: float,
+        longest_gap: int,
+        days_active: int,
     ) -> float:
         """Beräkna overall temporal health score."""
         score = 0.0
@@ -419,14 +435,16 @@ class TemporalPatternAnalyzer:
 
     def print_analysis(self, metrics: TemporalMetrics):
         """Skriv ut snygg analys."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"TEMPORAL PATTERN ANALYSIS: {metrics.canonical_root}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 OVERVIEW")
         print(f"  Health Score: {metrics.health_score:.1f}/100")
         print(f"  Total links: {metrics.total_links}")
-        print(f"  Active period: {metrics.days_active} days ({metrics.total_months} months)")
+        print(
+            f"  Active period: {metrics.days_active} days ({metrics.total_months} months)"
+        )
 
         if metrics.first_link_date:
             print(f"\n📅 TIMELINE")
@@ -448,7 +466,9 @@ class TemporalPatternAnalyzer:
 
         print(f"\n📊 MONTHLY PERFORMANCE")
         print(f"  Best month: {metrics.best_month[0]} ({metrics.best_month[1]} links)")
-        print(f"  Worst month: {metrics.worst_month[0]} ({metrics.worst_month[1]} links)")
+        print(
+            f"  Worst month: {metrics.worst_month[0]} ({metrics.worst_month[1]} links)"
+        )
 
         if metrics.has_unnatural_spikes:
             print(f"\n⚠️ SPIKE DETECTION")
@@ -482,7 +502,9 @@ def demo():
     """Demo av Temporal Pattern Analyzer."""
     from pathlib import Path
 
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")

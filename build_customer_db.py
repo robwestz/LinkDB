@@ -1,5 +1,6 @@
 # build_customer_db.py
 import sqlite3
+
 import tldextract
 
 SCHEMA_SQL = """
@@ -64,4 +65,9 @@ def insert_link(con: sqlite3.Connection, cid: int, pub_domain, target_domain, ta
 
 def infer_priority_pages(con: sqlite3.Connection, cid: int, top_n: int = 6):
     cur = con.execute("""SELECT target_url, COUNT(*) c FROM links
-                         WHERE customer_id=? GROUP BY target_ur
+                         WHERE customer_id=? GROUP BY target_url
+                         ORDER BY c DESC LIMIT ?""", (cid, top_n))
+    for target_url, count in cur:
+        con.execute("""INSERT OR IGNORE INTO priority_pages(customer_id, url, priority_score)
+                       VALUES(?,?,?)""", (cid, target_url, float(count)))
+    con.commit()

@@ -5,21 +5,29 @@ Provides endpoints to Create, Read, Update, and Delete links in the database.
 Enables live editing from the frontend.
 """
 
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
-import sqlite3
-from pathlib import Path
-from datetime import datetime
 
 router = APIRouter(prefix="/api/links", tags=["crud"])
 
 # Database path
-DB_PATH = str(Path(__file__).parent.parent.parent.parent / "data" / "output" / "linkops_history.db")
+DB_PATH = str(
+    Path(__file__).parent.parent.parent.parent
+    / "data"
+    / "output"
+    / "linkops_history.db"
+)
+
 
 def get_db_connection():
     """Helper to get database connection."""
     return sqlite3.connect(DB_PATH)
+
 
 # Pydantic models for request/response
 class LinkCreate(BaseModel):
@@ -31,11 +39,13 @@ class LinkCreate(BaseModel):
     anchor_text: str
     published_at: str  # Format: YYYY-MM-DD
 
+
 class LinkUpdate(BaseModel):
     pub_domain: Optional[str] = None
     target_url: Optional[str] = None
     anchor_text: Optional[str] = None
     published_at: Optional[str] = None
+
 
 class LinkResponse(BaseModel):
     id: int
@@ -46,6 +56,7 @@ class LinkResponse(BaseModel):
     target_url: str
     anchor_text: str
     published_at: str
+
 
 @router.post("/", response_model=dict)
 def create_link(link: LinkCreate):
@@ -60,24 +71,29 @@ def create_link(link: LinkCreate):
 
         # Validate date format
         try:
-            datetime.strptime(link.published_at, '%Y-%m-%d')
+            datetime.strptime(link.published_at, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+            raise HTTPException(
+                status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
+            )
 
         # Insert new link
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO customer_history
             (customer_id, canonical_root, brand, pub_domain, target_url, anchor_text, published_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            link.customer_id,
-            link.canonical_root,
-            link.brand,
-            link.pub_domain,
-            link.target_url,
-            link.anchor_text,
-            link.published_at
-        ))
+        """,
+            (
+                link.customer_id,
+                link.canonical_root,
+                link.brand,
+                link.pub_domain,
+                link.target_url,
+                link.anchor_text,
+                link.published_at,
+            ),
+        )
 
         conn.commit()
         new_id = cursor.lastrowid
@@ -86,15 +102,13 @@ def create_link(link: LinkCreate):
         return {
             "success": True,
             "message": "Link created successfully",
-            "data": {
-                "id": new_id,
-                **link.dict()
-            }
+            "data": {"id": new_id, **link.dict()},
         }
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating link: {str(e)}")
+
 
 @router.get("/{link_id}", response_model=dict)
 def get_link(link_id: int):
@@ -105,17 +119,22 @@ def get_link(link_id: int):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT rowid, customer_id, canonical_root, brand, pub_domain, target_url, anchor_text, published_at
             FROM customer_history
             WHERE rowid = ?
-        """, (link_id,))
+        """,
+            (link_id,),
+        )
 
         row = cursor.fetchone()
         conn.close()
 
         if not row:
-            raise HTTPException(status_code=404, detail=f"Link with ID {link_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Link with ID {link_id} not found"
+            )
 
         return {
             "success": True,
@@ -127,13 +146,14 @@ def get_link(link_id: int):
                 "pub_domain": row[4],
                 "target_url": row[5],
                 "anchor_text": row[6],
-                "published_at": row[7]
-            }
+                "published_at": row[7],
+            },
         }
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching link: {str(e)}")
+
 
 @router.put("/{link_id}", response_model=dict)
 def update_link(link_id: int, link_update: LinkUpdate):
@@ -149,7 +169,9 @@ def update_link(link_id: int, link_update: LinkUpdate):
         # Check if link exists
         cursor.execute("SELECT rowid FROM customer_history WHERE rowid = ?", (link_id,))
         if not cursor.fetchone():
-            raise HTTPException(status_code=404, detail=f"Link with ID {link_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Link with ID {link_id} not found"
+            )
 
         # Build update query dynamically
         update_fields = []
@@ -170,9 +192,11 @@ def update_link(link_id: int, link_update: LinkUpdate):
         if link_update.published_at is not None:
             # Validate date format
             try:
-                datetime.strptime(link_update.published_at, '%Y-%m-%d')
+                datetime.strptime(link_update.published_at, "%Y-%m-%d")
             except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+                raise HTTPException(
+                    status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
+                )
 
             update_fields.append("published_at = ?")
             params.append(link_update.published_at)
@@ -182,17 +206,22 @@ def update_link(link_id: int, link_update: LinkUpdate):
 
         # Execute update
         params.append(link_id)
-        query = f"UPDATE customer_history SET {', '.join(update_fields)} WHERE rowid = ?"
+        query = (
+            f"UPDATE customer_history SET {', '.join(update_fields)} WHERE rowid = ?"
+        )
         cursor.execute(query, params)
 
         conn.commit()
 
         # Fetch updated link
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT rowid, customer_id, canonical_root, brand, pub_domain, target_url, anchor_text, published_at
             FROM customer_history
             WHERE rowid = ?
-        """, (link_id,))
+        """,
+            (link_id,),
+        )
 
         row = cursor.fetchone()
         conn.close()
@@ -208,13 +237,14 @@ def update_link(link_id: int, link_update: LinkUpdate):
                 "pub_domain": row[4],
                 "target_url": row[5],
                 "anchor_text": row[6],
-                "published_at": row[7]
-            }
+                "published_at": row[7],
+            },
         }
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating link: {str(e)}")
+
 
 @router.delete("/{link_id}", response_model=dict)
 def delete_link(link_id: int):
@@ -230,21 +260,21 @@ def delete_link(link_id: int):
         # Check if link exists
         cursor.execute("SELECT rowid FROM customer_history WHERE rowid = ?", (link_id,))
         if not cursor.fetchone():
-            raise HTTPException(status_code=404, detail=f"Link with ID {link_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Link with ID {link_id} not found"
+            )
 
         # Delete link
         cursor.execute("DELETE FROM customer_history WHERE rowid = ?", (link_id,))
         conn.commit()
         conn.close()
 
-        return {
-            "success": True,
-            "message": f"Link {link_id} deleted successfully"
-        }
+        return {"success": True, "message": f"Link {link_id} deleted successfully"}
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting link: {str(e)}")
+
 
 @router.post("/bulk-delete", response_model=dict)
 def bulk_delete_links(link_ids: list[int]):
@@ -261,8 +291,10 @@ def bulk_delete_links(link_ids: list[int]):
         cursor = conn.cursor()
 
         # Delete links
-        placeholders = ','.join('?' * len(link_ids))
-        cursor.execute(f"DELETE FROM customer_history WHERE rowid IN ({placeholders})", link_ids)
+        placeholders = ",".join("?" * len(link_ids))
+        cursor.execute(
+            f"DELETE FROM customer_history WHERE rowid IN ({placeholders})", link_ids
+        )
 
         deleted_count = cursor.rowcount
         conn.commit()
@@ -271,11 +303,11 @@ def bulk_delete_links(link_ids: list[int]):
         return {
             "success": True,
             "message": f"Deleted {deleted_count} link(s)",
-            "data": {
-                "deleted_count": deleted_count
-            }
+            "data": {"deleted_count": deleted_count},
         }
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error bulk deleting links: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error bulk deleting links: {str(e)}"
+        )

@@ -12,12 +12,12 @@ const RecommendationsCard = ({ customerId }) => {
 
     setLoading(true);
     fetch(`http://localhost:8000/api/ai/recommendations/${customerId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setRecommendations(data.data.recommendations || []);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Failed to load recommendations:', err);
         setLoading(false);
       });

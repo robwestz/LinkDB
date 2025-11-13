@@ -1,6 +1,8 @@
 """Quick test av Basic Plan Generator"""
+
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app.planning.basic_plan_generator import BasicPlanGenerator
@@ -21,8 +23,7 @@ if db_path.exists():
     print("\n📊 Genererar plan...")
     try:
         plan = generator.generate_plan(
-            planning_data=planning_data,
-            plan_name="Quick Test Plan"
+            planning_data=planning_data, plan_name="Quick Test Plan"
         )
 
         print(f"\n✅ Plan genererad med {plan.total_links} länkar!")
@@ -37,7 +38,7 @@ if db_path.exists():
     except Exception as e:
         print(f"\n❌ Fel: {e}")
         import traceback
+
         traceback.print_exc()
 else:
     print("❌ Databas saknas!")
-

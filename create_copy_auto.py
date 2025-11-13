@@ -1,9 +1,10 @@
 """
 Automatisk projektkopia - kör med standardvärden
 """
+
+import subprocess
 from datetime import datetime
 from pathlib import Path
-import subprocess
 
 # Skapa standardnamn
 project_name = f"linkdb_dev_{datetime.now().strftime('%Y%m%d')}"
@@ -17,7 +18,7 @@ process = subprocess.Popen(
     stdin=subprocess.PIPE,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
-    text=True
+    text=True,
 )
 
 # Skicka input: enter för standardnamn, 'y' för bekräftelse
@@ -31,4 +32,3 @@ if error:
 parent_dir = Path(__file__).parent.parent
 new_project = parent_dir / project_name
 print(f"\n✅ Kopia skapad: {new_project}")
-

@@ -9,17 +9,21 @@ Denna modul analyserar:
 - New vs returning domains
 - Domain authority indicators (baserat på patterns)
 """
+
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional, Set
-from collections import Counter, defaultdict
+
 import sqlite3
+from collections import Counter, defaultdict
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set, Tuple
+
 import tldextract
 
 
 @dataclass
 class DomainQualityMetrics:
     """Kvalitetsmått för publishing domains."""
+
     customer_id: int
     canonical_root: str
 
@@ -66,20 +70,20 @@ class DomainQualityAnalyzer:
 
     # Geographic TLD mapping (simplified)
     GEO_TLDS = {
-        'se': 'Sweden',
-        'no': 'Norway',
-        'dk': 'Denmark',
-        'fi': 'Finland',
-        'de': 'Germany',
-        'uk': 'United Kingdom',
-        'fr': 'France',
-        'es': 'Spain',
-        'it': 'Italy',
-        'nl': 'Netherlands',
-        'io': 'International',
-        'com': 'Commercial',
-        'org': 'Organization',
-        'net': 'Network'
+        "se": "Sweden",
+        "no": "Norway",
+        "dk": "Denmark",
+        "fi": "Finland",
+        "de": "Germany",
+        "uk": "United Kingdom",
+        "fr": "France",
+        "es": "Spain",
+        "it": "Italy",
+        "nl": "Netherlands",
+        "io": "International",
+        "com": "Commercial",
+        "org": "Organization",
+        "net": "Network",
     }
 
     def __init__(self, db_path: str):
@@ -94,8 +98,7 @@ class DomainQualityAnalyzer:
 
         # Hämta customer info
         customer = con.execute(
-            "SELECT canonical_root FROM customers WHERE id = ?",
-            (customer_id,)
+            "SELECT canonical_root FROM customers WHERE id = ?", (customer_id,)
         ).fetchone()
 
         if not customer:
@@ -103,18 +106,21 @@ class DomainQualityAnalyzer:
             return None
 
         # Hämta alla publishing domains
-        links = con.execute("""
+        links = con.execute(
+            """
             SELECT pub_domain
             FROM links_history
             WHERE customer_id = ? AND pub_domain IS NOT NULL AND TRIM(pub_domain) <> ''
-        """, (customer_id,)).fetchall()
+        """,
+            (customer_id,),
+        ).fetchall()
 
         con.close()
 
         if not links:
             return None
 
-        domains = [link['pub_domain'] for link in links]
+        domains = [link["pub_domain"] for link in links]
         total_links = len(domains)
         unique_domains = len(set(domains))
 
@@ -129,7 +135,9 @@ class DomainQualityAnalyzer:
         tld_dist, top_tlds = self._analyze_tlds(domains)
 
         # Concentration
-        top_domain_conc = (domain_counter.most_common(1)[0][1] / total_links) if domain_counter else 0
+        top_domain_conc = (
+            (domain_counter.most_common(1)[0][1] / total_links) if domain_counter else 0
+        )
         top_5_count = sum(count for _, count in domain_counter.most_common(5))
         top_5_conc = top_5_count / total_links
 
@@ -138,7 +146,9 @@ class DomainQualityAnalyzer:
         # Domain behavior
         single_link = sum(1 for count in domain_counter.values() if count == 1)
         multi_link = sum(1 for count in domain_counter.values() if count >= 2)
-        power_doms = [(dom, count) for dom, count in domain_counter.items() if count >= 5]
+        power_doms = [
+            (dom, count) for dom, count in domain_counter.items() if count >= 5
+        ]
 
         # Cross-linking / PBN detection
         potential_pbn, cross_link_score = self._detect_suspicious_patterns(
@@ -151,14 +161,22 @@ class DomainQualityAnalyzer:
 
         # Quality score
         quality_score = self._calculate_quality_score(
-            diversity_score, top_domain_conc, gini, cross_link_score,
-            single_link, unique_domains
+            diversity_score,
+            top_domain_conc,
+            gini,
+            cross_link_score,
+            single_link,
+            unique_domains,
         )
 
         # Warnings & insights
         warnings = self._generate_warnings(
-            top_domain_conc, top_5_conc, cross_link_score,
-            single_link, unique_domains, potential_pbn
+            top_domain_conc,
+            top_5_conc,
+            cross_link_score,
+            single_link,
+            unique_domains,
+            potential_pbn,
         )
 
         insights = self._generate_insights(
@@ -167,7 +185,7 @@ class DomainQualityAnalyzer:
 
         return DomainQualityMetrics(
             customer_id=customer_id,
-            canonical_root=customer['canonical_root'],
+            canonical_root=customer["canonical_root"],
             total_links=total_links,
             unique_domains=unique_domains,
             domain_diversity_score=diversity_score,
@@ -186,16 +204,18 @@ class DomainQualityAnalyzer:
             quality_score=quality_score,
             warnings=warnings,
             insights=insights,
-            top_domains=top_domains
+            top_domains=top_domains,
         )
 
-    def _analyze_tlds(self, domains: List[str]) -> Tuple[Dict[str, int], List[Tuple[str, int]]]:
+    def _analyze_tlds(
+        self, domains: List[str]
+    ) -> Tuple[Dict[str, int], List[Tuple[str, int]]]:
         """Analysera TLD distribution."""
         tld_counter = Counter()
 
         for domain in domains:
             extracted = tldextract.extract(domain)
-            tld = extracted.suffix or 'unknown'
+            tld = extracted.suffix or "unknown"
             tld_counter[tld] += 1
 
         tld_dist = dict(tld_counter)
@@ -241,7 +261,8 @@ class DomainQualityAnalyzer:
 
             # Check if multiple domains have suspiciously high counts
             high_count_domains = [
-                dom for dom, count in domain_counter.items()
+                dom
+                for dom, count in domain_counter.items()
                 if count > max(5, total_links * 0.15)
             ]
 
@@ -267,13 +288,18 @@ class DomainQualityAnalyzer:
                 country = self.GEO_TLDS[tld]
                 geo_counter[country] += 1
             else:
-                geo_counter['Other'] += 1
+                geo_counter["Other"] += 1
 
         return dict(geo_counter)
 
     def _calculate_quality_score(
-        self, diversity: float, top_conc: float, gini: float,
-        cross_link_score: float, single_link_count: int, unique_domains: int
+        self,
+        diversity: float,
+        top_conc: float,
+        gini: float,
+        cross_link_score: float,
+        single_link_count: int,
+        unique_domains: int,
     ) -> float:
         """Beräkna overall quality score."""
         score = 0.0
@@ -304,8 +330,13 @@ class DomainQualityAnalyzer:
         return min(max(score, 0), 100)
 
     def _generate_warnings(
-        self, top_conc: float, top_5_conc: float, cross_link_score: float,
-        single_link_count: int, unique_domains: int, potential_pbn: List[str]
+        self,
+        top_conc: float,
+        top_5_conc: float,
+        cross_link_score: float,
+        single_link_count: int,
+        unique_domains: int,
+        potential_pbn: List[str],
     ) -> List[str]:
         """Generera varningar."""
         warnings = []
@@ -334,9 +365,7 @@ class DomainQualityAnalyzer:
             )
 
         if potential_pbn:
-            warnings.append(
-                f"⚠️ Misstänkta domäner: {', '.join(potential_pbn[:3])}"
-            )
+            warnings.append(f"⚠️ Misstänkta domäner: {', '.join(potential_pbn[:3])}")
 
         if unique_domains < 5 and len(warnings) == 0:
             warnings.append(
@@ -349,23 +378,22 @@ class DomainQualityAnalyzer:
         return warnings
 
     def _generate_insights(
-        self, diversity: float, geo_dist: Dict[str, int],
-        power_domains: List[Tuple[str, int]], is_geo_diverse: bool
+        self,
+        diversity: float,
+        geo_dist: Dict[str, int],
+        power_domains: List[Tuple[str, int]],
+        is_geo_diverse: bool,
     ) -> List[str]:
         """Generera insights."""
         insights = []
 
         if diversity > 75:
-            insights.append(
-                f"✅ Utmärkt domain diversity ({diversity:.1f}/100)"
-            )
+            insights.append(f"✅ Utmärkt domain diversity ({diversity:.1f}/100)")
 
         if is_geo_diverse:
             top_geos = sorted(geo_dist.items(), key=lambda x: x[1], reverse=True)[:3]
             geo_str = ", ".join(f"{geo} ({count})" for geo, count in top_geos)
-            insights.append(
-                f"🌍 Geografisk spridning: {geo_str}"
-            )
+            insights.append(f"🌍 Geografisk spridning: {geo_str}")
 
         if power_domains:
             insights.append(
@@ -376,9 +404,9 @@ class DomainQualityAnalyzer:
 
     def print_analysis(self, metrics: DomainQualityMetrics):
         """Skriv ut snygg analys."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"DOMAIN QUALITY ANALYSIS: {metrics.canonical_root}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 OVERVIEW")
         print(f"  Quality Score: {metrics.quality_score:.1f}/100")
@@ -400,13 +428,16 @@ class DomainQualityAnalyzer:
             print(f"\n⚠️ RISK ASSESSMENT")
             print(f"  Cross-linking score: {metrics.cross_linking_score:.0f}/100")
             if metrics.potential_pbn_domains:
-                print(f"  Suspicious domains detected: {len(metrics.potential_pbn_domains)}")
+                print(
+                    f"  Suspicious domains detected: {len(metrics.potential_pbn_domains)}"
+                )
 
         print(f"\n🌍 GEOGRAPHIC DIVERSITY")
         print(f"  Is geo-diverse: {'YES' if metrics.is_geo_diverse else 'NO'}")
         if metrics.geographic_diversity:
-            for geo, count in sorted(metrics.geographic_diversity.items(),
-                                    key=lambda x: x[1], reverse=True)[:5]:
+            for geo, count in sorted(
+                metrics.geographic_diversity.items(), key=lambda x: x[1], reverse=True
+            )[:5]:
                 print(f"    - {geo}: {count} links")
 
         if metrics.top_tlds:
@@ -434,7 +465,9 @@ def demo():
     """Demo av Domain Quality Analyzer."""
     from pathlib import Path
 
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")

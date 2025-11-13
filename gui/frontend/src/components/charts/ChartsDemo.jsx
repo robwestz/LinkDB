@@ -23,7 +23,7 @@ const ChartsDemo = () => {
     { name: 'partial', value: 35 },
     { name: 'branded', value: 25 },
     { name: 'generic', value: 10 },
-    { name: 'lsi', value: 5 }
+    { name: 'lsi', value: 5 },
   ];
 
   const temporalData = [
@@ -34,7 +34,7 @@ const ChartsDemo = () => {
     { month: '2024-05', links: 55 },
     { month: '2024-06', links: 67 },
     { month: '2024-07', links: 63 },
-    { month: '2024-08', links: 71 }
+    { month: '2024-08', links: 71 },
   ];
 
   const monthlyData = [
@@ -45,7 +45,7 @@ const ChartsDemo = () => {
     { month: '2024-05', count: 35 },
     { month: '2024-06', count: 50 },
     { month: '2024-07', count: 58 },
-    { month: '2024-08', count: 62 }
+    { month: '2024-08', count: 62 },
   ];
 
   const domainData = [
@@ -56,7 +56,7 @@ const ChartsDemo = () => {
     { domain: 'videoslots.com', count: 31 },
     { domain: 'casumo.com', count: 28 },
     { domain: 'rizk.com', count: 24 },
-    { domain: 'casinoroom.com', count: 20 }
+    { domain: 'casinoroom.com', count: 20 },
   ];
 
   const tldData = [
@@ -65,7 +65,7 @@ const ChartsDemo = () => {
     { tld: '.org', count: 42 },
     { tld: '.net', count: 28 },
     { tld: '.io', count: 15 },
-    { tld: '.co', count: 10 }
+    { tld: '.co', count: 10 },
   ];
 
   const competitiveData = [
@@ -76,7 +76,7 @@ const ChartsDemo = () => {
     { id: 121, domain: 'videoslots.com', links: 39, quality: 71.2 },
     { id: 122, domain: 'casumo.com', links: 73, quality: 85.4 },
     { id: 123, domain: 'unibet.se', links: 45, quality: 69.8 },
-    { id: 124, domain: 'paf.se', links: 62, quality: 77.6 }
+    { id: 124, domain: 'paf.se', links: 62, quality: 77.6 },
   ];
 
   return (
@@ -98,7 +98,11 @@ const ChartsDemo = () => {
             Circular gauge for scores 0-100 with color-coded zones
           </p>
           <div className="flex justify-center">
-            <HealthGauge score={healthScore} label="Overall Link Health" size={200} />
+            <HealthGauge
+              score={healthScore}
+              label="Overall Link Health"
+              size={200}
+            />
           </div>
         </section>
 
@@ -192,7 +196,8 @@ const ChartsDemo = () => {
               <strong>Gray dots:</strong> Competitors
             </p>
             <p>
-              <strong>Quadrants:</strong> Divided by average links (vertical) and average quality (horizontal)
+              <strong>Quadrants:</strong> Divided by average links (vertical)
+              and average quality (horizontal)
             </p>
           </div>
         </section>

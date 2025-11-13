@@ -2,15 +2,18 @@
 Customer Grouper - Grupperar kunder baserat på antal tillgängliga länkar
 och tilldelar lämplig planeringsstrategi.
 """
+
 from __future__ import annotations
+
+import sqlite3
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict
-import sqlite3
+from typing import Dict, List
 
 
 class LinkVolumeGroup(Enum):
     """Grupper baserade på antal länkar."""
+
     SINGLE = "single"  # 1 länk
     FEW = "few"  # 2-5 länkar
     MEDIUM = "medium"  # 6-15 länkar
@@ -21,6 +24,7 @@ class LinkVolumeGroup(Enum):
 @dataclass
 class CustomerGroup:
     """Representation av en kundgrupp."""
+
     customer_id: int
     canonical_root: str
     brand: str
@@ -121,7 +125,9 @@ class CustomerGrouper:
         """
         return self.STRATEGIES[volume_group]
 
-    def group_customers(self, customer_link_counts: Dict[int, int]) -> List[CustomerGroup]:
+    def group_customers(
+        self, customer_link_counts: Dict[int, int]
+    ) -> List[CustomerGroup]:
         """
         Gruppera kunder baserat på antal länkar.
 
@@ -140,7 +146,7 @@ class CustomerGrouper:
             # Hämta customer info
             customer = con.execute(
                 "SELECT canonical_root, brand FROM customers WHERE id = ?",
-                (customer_id,)
+                (customer_id,),
             ).fetchone()
 
             if not customer:
@@ -152,13 +158,13 @@ class CustomerGrouper:
 
             group = CustomerGroup(
                 customer_id=customer_id,
-                canonical_root=customer['canonical_root'],
-                brand=customer['brand'] or customer['canonical_root'],
+                canonical_root=customer["canonical_root"],
+                brand=customer["brand"] or customer["canonical_root"],
                 link_count=link_count,
                 volume_group=volume_group,
-                recommended_strategy=strategy['name'],
-                can_build_authority=strategy['can_authority'],
-                can_semantic_cluster=strategy['can_cluster']
+                recommended_strategy=strategy["name"],
+                can_build_authority=strategy["can_authority"],
+                can_semantic_cluster=strategy["can_cluster"],
             )
 
             groups.append(group)
@@ -221,36 +227,40 @@ class CustomerGrouper:
         """
         summary = self.get_group_summary(groups)
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("CUSTOMER GROUPING SUMMARY")
-        print("="*70)
+        print("=" * 70)
         print(f"\nTotal Customers: {summary['total_customers']}")
         print(f"Total Links: {summary['total_links']}")
 
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
         print("GROUPS BY VOLUME")
-        print("-"*70)
+        print("-" * 70)
 
         for volume_group in LinkVolumeGroup:
             group_key = volume_group.value
-            if group_key in summary['groups']:
-                data = summary['groups'][group_key]
+            if group_key in summary["groups"]:
+                data = summary["groups"][group_key]
                 strategy = self.STRATEGIES[volume_group]
-                print(f"\n{volume_group.value.upper()} ({data['count']} customers, {data['total_links']} links)")
+                print(
+                    f"\n{volume_group.value.upper()} ({data['count']} customers, {data['total_links']} links)"
+                )
                 print(f"  Strategy: {strategy['name']}")
                 print(f"  Description: {strategy['description']}")
                 print(f"  Can cluster: {strategy['can_cluster']}")
                 print(f"  Can build authority: {strategy['can_authority']}")
-                if data['count'] <= 5:
+                if data["count"] <= 5:
                     print(f"  Customers: {', '.join(data['customers'])}")
 
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
         print("RECOMMENDED STRATEGIES")
-        print("-"*70)
+        print("-" * 70)
 
-        for strategy_name, data in summary['strategies'].items():
-            print(f"\n{strategy_name.upper()} ({data['count']} customers, {data['total_links']} links)")
-            if data['count'] <= 5:
+        for strategy_name, data in summary["strategies"].items():
+            print(
+                f"\n{strategy_name.upper()} ({data['count']} customers, {data['total_links']} links)"
+            )
+            if data["count"] <= 5:
                 print(f"  Customers: {', '.join(data['customers'])}")
 
 
@@ -259,7 +269,9 @@ def demo():
     from pathlib import Path
 
     # Hitta databas
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")
@@ -269,8 +281,8 @@ def demo():
     # I verkligheten kommer detta från Google Sheets
     sample_counts = {
         117: 15,  # bethard.com - MEDIUM
-        50: 1,    # någon annan - SINGLE
-        75: 8,    # någon annan - MEDIUM
+        50: 1,  # någon annan - SINGLE
+        75: 8,  # någon annan - MEDIUM
         100: 25,  # någon annan - MANY
         # etc...
     }
@@ -280,9 +292,9 @@ def demo():
 
     grouper.print_summary(groups)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("INDIVIDUAL CUSTOMER DETAILS")
-    print("="*70)
+    print("=" * 70)
 
     for group in groups:
         print(f"\n{group}")
@@ -293,4 +305,3 @@ def demo():
 
 if __name__ == "__main__":
     demo()
-

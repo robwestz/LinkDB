@@ -9,26 +9,28 @@ Använder:
 
 Detta är GRUNDEN - semantisk analys läggs till i Fas 2.
 """
-from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Dict, Optional
-from pathlib import Path
-import sqlite3
-from datetime import datetime
-import random
 
+from __future__ import annotations
+
+import random
+import sqlite3
 import sys
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Optional
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from app.planning.volume_detector import PlanningVolumeDetector, CustomerPlanningVolume
 from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
 from app.analyzers.monthly_link_viewer import MonthlyLinkViewer
+from app.planning.volume_detector import CustomerPlanningVolume, PlanningVolumeDetector
 
 
 @dataclass
 class PlannedLink:
     """En planerad länk."""
+
     customer_id: int
     canonical_root: str
     target_url: str
@@ -40,19 +42,20 @@ class PlannedLink:
     def to_dict(self) -> Dict:
         """Konvertera till dictionary för export."""
         return {
-            'customer_id': self.customer_id,
-            'canonical_root': self.canonical_root,
-            'target_url': self.target_url,
-            'anchor_text': self.anchor_text,
-            'anchor_type': self.anchor_type,
-            'priority_score': self.priority_score,
-            'reasoning': self.reasoning
+            "customer_id": self.customer_id,
+            "canonical_root": self.canonical_root,
+            "target_url": self.target_url,
+            "anchor_text": self.anchor_text,
+            "anchor_type": self.anchor_type,
+            "priority_score": self.priority_score,
+            "reasoning": self.reasoning,
         }
 
 
 @dataclass
 class LinkPlan:
     """En komplett länkplan för en eller flera kunder."""
+
     plan_name: str
     created_at: datetime
     customers: List[CustomerPlanningVolume]
@@ -79,10 +82,33 @@ class BasicPlanGenerator:
     # Anchor type distributions per strategi (från PLANNING_SYSTEM_SPEC.md)
     ANCHOR_DISTRIBUTIONS = {
         "single_focus": {"exact": 0.50, "branded": 0.50},
-        "diversified_basics": {"exact": 0.20, "partial": 0.30, "branded": 0.30, "generic": 0.20},
-        "semantic_foundation": {"exact": 0.15, "partial": 0.35, "branded": 0.20, "generic": 0.20, "lsi": 0.10},
-        "topical_authority": {"exact": 0.10, "partial": 0.35, "branded": 0.20, "generic": 0.20, "lsi": 0.15},
-        "enterprise_authority": {"exact": 0.08, "partial": 0.37, "branded": 0.20, "generic": 0.20, "lsi": 0.15},
+        "diversified_basics": {
+            "exact": 0.20,
+            "partial": 0.30,
+            "branded": 0.30,
+            "generic": 0.20,
+        },
+        "semantic_foundation": {
+            "exact": 0.15,
+            "partial": 0.35,
+            "branded": 0.20,
+            "generic": 0.20,
+            "lsi": 0.10,
+        },
+        "topical_authority": {
+            "exact": 0.10,
+            "partial": 0.35,
+            "branded": 0.20,
+            "generic": 0.20,
+            "lsi": 0.15,
+        },
+        "enterprise_authority": {
+            "exact": 0.08,
+            "partial": 0.37,
+            "branded": 0.20,
+            "generic": 0.20,
+            "lsi": 0.15,
+        },
     }
 
     def __init__(self, history_db_path: str):
@@ -99,7 +125,7 @@ class BasicPlanGenerator:
         self,
         planning_data: Dict[int, int],
         target_urls: Optional[Dict[int, List[str]]] = None,
-        plan_name: Optional[str] = None
+        plan_name: Optional[str] = None,
     ) -> LinkPlan:
         """
         Generera en länkplan.
@@ -120,8 +146,7 @@ class BasicPlanGenerator:
 
         for volume in volumes:
             customer_links = self._generate_links_for_customer(
-                volume,
-                target_urls.get(volume.customer_id) if target_urls else None
+                volume, target_urls.get(volume.customer_id) if target_urls else None
             )
             all_planned_links.extend(customer_links)
 
@@ -140,15 +165,13 @@ class BasicPlanGenerator:
             created_at=datetime.now(),
             customers=volumes,
             planned_links=all_planned_links,
-            strategy_summary=strategy_summary
+            strategy_summary=strategy_summary,
         )
 
         return plan
 
     def _generate_links_for_customer(
-        self,
-        volume: CustomerPlanningVolume,
-        target_urls: Optional[List[str]] = None
+        self, volume: CustomerPlanningVolume, target_urls: Optional[List[str]] = None
     ) -> List[PlannedLink]:
         """
         Generera länkar för en specifik kund.
@@ -172,18 +195,18 @@ class BasicPlanGenerator:
 
         if not target_urls:
             # Fallback: skapa placeholder
-            target_urls = [f"https://{volume.canonical_root}/page-{i}" for i in range(1, 4)]
+            target_urls = [
+                f"https://{volume.canonical_root}/page-{i}" for i in range(1, 4)
+            ]
 
         # Hämta anchor distribution för strategin
         anchor_dist = self.ANCHOR_DISTRIBUTIONS.get(
-            volume.recommended_strategy,
-            self.ANCHOR_DISTRIBUTIONS["diversified_basics"]
+            volume.recommended_strategy, self.ANCHOR_DISTRIBUTIONS["diversified_basics"]
         )
 
         # Generera länkar enligt distribution
         anchors_to_generate = self._calculate_anchor_counts(
-            volume.planned_links,
-            anchor_dist
+            volume.planned_links, anchor_dist
         )
 
         # Skapa länkar
@@ -194,20 +217,17 @@ class BasicPlanGenerator:
 
                 # Generera anchor text baserat på type
                 anchor_text = self._generate_anchor_text(
-                    anchor_type,
-                    volume.canonical_root,
-                    target_url,
-                    analysis
+                    anchor_type, volume.canonical_root, target_url, analysis
                 )
 
                 # Beräkna priority (enkel version)
-                priority = self._calculate_priority(anchor_type, i, volume.planned_links)
+                priority = self._calculate_priority(
+                    anchor_type, i, volume.planned_links
+                )
 
                 # Skapa reasoning
                 reasoning = self._create_reasoning(
-                    anchor_type,
-                    volume.recommended_strategy,
-                    analysis
+                    anchor_type, volume.recommended_strategy, analysis
                 )
 
                 link = PlannedLink(
@@ -217,7 +237,7 @@ class BasicPlanGenerator:
                     anchor_text=anchor_text,
                     anchor_type=anchor_type,
                     priority_score=priority,
-                    reasoning=reasoning
+                    reasoning=reasoning,
                 )
 
                 links.append(link)
@@ -225,9 +245,7 @@ class BasicPlanGenerator:
         return links
 
     def _calculate_anchor_counts(
-        self,
-        total_links: int,
-        distribution: Dict[str, float]
+        self, total_links: int, distribution: Dict[str, float]
     ) -> Dict[str, int]:
         """Beräkna antal länkar per anchor type."""
         counts = {}
@@ -248,14 +266,10 @@ class BasicPlanGenerator:
         return counts
 
     def _generate_anchor_text(
-        self,
-        anchor_type: str,
-        canonical_root: str,
-        target_url: str,
-        analysis
+        self, anchor_type: str, canonical_root: str, target_url: str, analysis
     ) -> str:
         """Generera anchor text baserat på type."""
-        brand = canonical_root.replace('.com', '').replace('.se', '').title()
+        brand = canonical_root.replace(".com", "").replace(".se", "").title()
 
         if anchor_type == "exact":
             # Använd historical anchors om möjligt
@@ -281,12 +295,7 @@ class BasicPlanGenerator:
 
         return brand
 
-    def _calculate_priority(
-        self,
-        anchor_type: str,
-        position: int,
-        total: int
-    ) -> float:
+    def _calculate_priority(self, anchor_type: str, position: int, total: int) -> float:
         """Beräkna priority score (0-1)."""
         # Exact match får högre priority
         base_priority = {
@@ -302,12 +311,7 @@ class BasicPlanGenerator:
 
         return min(base_priority * position_factor, 1.0)
 
-    def _create_reasoning(
-        self,
-        anchor_type: str,
-        strategy: str,
-        analysis
-    ) -> str:
+    def _create_reasoning(self, anchor_type: str, strategy: str, analysis) -> str:
         """Skapa förklaring för valet."""
         reasons = []
 
@@ -323,10 +327,15 @@ class BasicPlanGenerator:
         """Exportera plan till CSV."""
         import csv
 
-        with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
+        with open(output_path, "w", newline="", encoding="utf-8-sig") as csvfile:
             fieldnames = [
-                'customer_id', 'canonical_root', 'target_url',
-                'anchor_text', 'anchor_type', 'priority_score', 'reasoning'
+                "customer_id",
+                "canonical_root",
+                "target_url",
+                "anchor_text",
+                "anchor_type",
+                "priority_score",
+                "reasoning",
             ]
 
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -339,9 +348,9 @@ class BasicPlanGenerator:
 
     def print_plan_summary(self, plan: LinkPlan):
         """Skriv ut sammanfattning av planen."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"LINK PLAN: {plan.plan_name}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 ÖVERSIKT")
         print(f"  Skapad: {plan.created_at.strftime('%Y-%m-%d %H:%M')}")
@@ -353,10 +362,12 @@ class BasicPlanGenerator:
             print(f"  {strategy}: {count} kunder")
 
         print(f"\n📋 PER KUND")
-        print("-"*70)
+        print("-" * 70)
 
         for customer in plan.customers:
-            customer_links = [l for l in plan.planned_links if l.customer_id == customer.customer_id]
+            customer_links = [
+                l for l in plan.planned_links if l.customer_id == customer.customer_id
+            ]
 
             print(f"\n{customer.canonical_root} ({len(customer_links)} länkar)")
             print(f"  Strategi: {customer.recommended_strategy}")
@@ -364,7 +375,9 @@ class BasicPlanGenerator:
             # Räkna anchor types
             anchor_counts = {}
             for link in customer_links:
-                anchor_counts[link.anchor_type] = anchor_counts.get(link.anchor_type, 0) + 1
+                anchor_counts[link.anchor_type] = (
+                    anchor_counts.get(link.anchor_type, 0) + 1
+                )
 
             print(f"  Anchor distribution:")
             for atype, count in sorted(anchor_counts.items()):
@@ -377,7 +390,9 @@ def demo():
     from pathlib import Path
 
     # Hitta database
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")
@@ -393,15 +408,16 @@ def demo():
     # Generera plan
     print("🎯 Genererar länkplan...")
     plan = generator.generate_plan(
-        planning_data=planning_data,
-        plan_name="Test Plan November 2025"
+        planning_data=planning_data, plan_name="Test Plan November 2025"
     )
 
     # Visa sammanfattning
     generator.print_plan_summary(plan)
 
     # Exportera till CSV
-    output_path = Path(__file__).resolve().parents[2] / "data" / "output" / "test_link_plan.csv"
+    output_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "test_link_plan.csv"
+    )
     generator.export_to_csv(plan, str(output_path))
 
     print(f"\n📁 Plan exporterad till: {output_path}")
@@ -409,4 +425,3 @@ def demo():
 
 if __name__ == "__main__":
     demo()
-

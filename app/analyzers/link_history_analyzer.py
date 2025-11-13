@@ -2,17 +2,20 @@
 Link History Analyzer - Analyserar historisk länkdata för att identifiera
 mönster och framgångsrika strategier.
 """
+
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Dict, Optional
-from collections import Counter
+
 import sqlite3
+from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
 
 @dataclass
 class LinkAnalysis:
     """Resultat av länkanalys för en kund."""
+
     customer_id: int
     canonical_root: str
     brand: str
@@ -76,8 +79,7 @@ class LinkHistoryAnalyzer:
 
         # Hämta customer info
         customer = con.execute(
-            "SELECT canonical_root, brand FROM customers WHERE id = ?",
-            (customer_id,)
+            "SELECT canonical_root, brand FROM customers WHERE id = ?", (customer_id,)
         ).fetchone()
 
         if not customer:
@@ -85,7 +87,8 @@ class LinkHistoryAnalyzer:
             return None
 
         # Hämta alla länkar för kunden
-        links = con.execute("""
+        links = con.execute(
+            """
             SELECT 
                 pub_domain,
                 target_url,
@@ -99,7 +102,9 @@ class LinkHistoryAnalyzer:
             FROM links_history
             WHERE customer_id = ?
             ORDER BY published_at, created_at
-        """, (customer_id,)).fetchall()
+        """,
+            (customer_id,),
+        ).fetchall()
 
         con.close()
 
@@ -108,18 +113,30 @@ class LinkHistoryAnalyzer:
 
         # Grundläggande räkningar
         total_links = len(links)
-        unique_pub_domains = len(set(link['pub_domain'] for link in links if link['pub_domain']))
-        unique_target_domains = len(set(link['target_domain'] for link in links if link['target_domain']))
-        unique_target_urls = len(set(link['target_url'] for link in links if link['target_url']))
+        unique_pub_domains = len(
+            set(link["pub_domain"] for link in links if link["pub_domain"])
+        )
+        unique_target_domains = len(
+            set(link["target_domain"] for link in links if link["target_domain"])
+        )
+        unique_target_urls = len(
+            set(link["target_url"] for link in links if link["target_url"])
+        )
 
         # Tidsbas era metrics
-        dates = [link['published_at'] or link['created_at'] for link in links if link['published_at'] or link['created_at']]
+        dates = [
+            link["published_at"] or link["created_at"]
+            for link in links
+            if link["published_at"] or link["created_at"]
+        ]
         if dates:
             dates_parsed = []
             for d in dates:
                 try:
                     if isinstance(d, str):
-                        dates_parsed.append(datetime.fromisoformat(d.replace('Z', '+00:00')))
+                        dates_parsed.append(
+                            datetime.fromisoformat(d.replace("Z", "+00:00"))
+                        )
                 except:
                     pass
 
@@ -127,9 +144,11 @@ class LinkHistoryAnalyzer:
                 first_date = min(dates_parsed)
                 last_date = max(dates_parsed)
                 days_active = (last_date - first_date).days + 1
-                links_per_month = (total_links / days_active * 30) if days_active > 0 else 0
-                first_link_str = first_date.strftime('%Y-%m-%d')
-                last_link_str = last_date.strftime('%Y-%m-%d')
+                links_per_month = (
+                    (total_links / days_active * 30) if days_active > 0 else 0
+                )
+                first_link_str = first_date.strftime("%Y-%m-%d")
+                last_link_str = last_date.strftime("%Y-%m-%d")
             else:
                 first_link_str = None
                 last_link_str = None
@@ -142,7 +161,7 @@ class LinkHistoryAnalyzer:
             links_per_month = 0
 
         # Anchor text analys
-        anchors = [link['anchor_text'] for link in links if link['anchor_text']]
+        anchors = [link["anchor_text"] for link in links if link["anchor_text"]]
         anchor_counter = Counter(anchors)
         most_common_anchors = anchor_counter.most_common(10)
 
@@ -154,31 +173,32 @@ class LinkHistoryAnalyzer:
             anchor_diversity = 0.0
 
         # Anchor types
-        anchor_types_list = [link['anchor_type'] for link in links if link['anchor_type']]
+        anchor_types_list = [
+            link["anchor_type"] for link in links if link["anchor_type"]
+        ]
         anchor_types = dict(Counter(anchor_types_list))
 
         # Target analys
-        target_urls = [link['target_url'] for link in links if link['target_url']]
+        target_urls = [link["target_url"] for link in links if link["target_url"]]
         target_counter = Counter(target_urls)
         most_linked_urls = target_counter.most_common(10)
 
-        target_domains = [link['target_domain'] for link in links if link['target_domain']]
+        target_domains = [
+            link["target_domain"] for link in links if link["target_domain"]
+        ]
         domain_counter = Counter(target_domains)
         top_target_domains = domain_counter.most_common(5)
 
         # Link types och languages
-        link_types_list = [link['link_type'] for link in links if link['link_type']]
+        link_types_list = [link["link_type"] for link in links if link["link_type"]]
         link_types = dict(Counter(link_types_list))
 
-        languages_list = [link['language'] for link in links if link['language']]
+        languages_list = [link["language"] for link in links if link["language"]]
         languages = dict(Counter(languages_list))
 
         # Identifiera primär strategi
         primary_strategy = self._identify_strategy(
-            total_links,
-            anchor_diversity,
-            anchor_types,
-            most_linked_urls
+            total_links, anchor_diversity, anchor_types, most_linked_urls
         )
 
         # Generera rekommendationer
@@ -187,13 +207,13 @@ class LinkHistoryAnalyzer:
             anchor_diversity,
             anchor_types,
             unique_target_urls,
-            links_per_month
+            links_per_month,
         )
 
         return LinkAnalysis(
             customer_id=customer_id,
-            canonical_root=customer['canonical_root'],
-            brand=customer['brand'] or customer['canonical_root'],
+            canonical_root=customer["canonical_root"],
+            brand=customer["brand"] or customer["canonical_root"],
             total_links=total_links,
             unique_pub_domains=unique_pub_domains,
             unique_target_domains=unique_target_domains,
@@ -210,7 +230,7 @@ class LinkHistoryAnalyzer:
             link_types=link_types,
             languages=languages,
             primary_strategy=primary_strategy,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
     def _identify_strategy(
@@ -218,7 +238,7 @@ class LinkHistoryAnalyzer:
         total_links: int,
         anchor_diversity: float,
         anchor_types: Dict[str, int],
-        most_linked_urls: List[tuple]
+        most_linked_urls: List[tuple],
     ) -> str:
         """Identifiera vilken strategi som används."""
 
@@ -248,7 +268,7 @@ class LinkHistoryAnalyzer:
         anchor_diversity: float,
         anchor_types: Dict[str, int],
         unique_target_urls: int,
-        links_per_month: float
+        links_per_month: float,
     ) -> List[str]:
         """Generera rekommendationer baserat på analys."""
         recommendations = []
@@ -259,9 +279,7 @@ class LinkHistoryAnalyzer:
                 "⚠️ Låg anchor diversity - öka variationen i ankartexter"
             )
         elif anchor_diversity > 0.9:
-            recommendations.append(
-                "✅ Utmärkt anchor diversity"
-            )
+            recommendations.append("✅ Utmärkt anchor diversity")
 
         # URL diversity
         if unique_target_urls < 3 and total_links > 10:
@@ -281,7 +299,7 @@ class LinkHistoryAnalyzer:
 
         # Anchor type distribution
         if anchor_types:
-            exact_ratio = anchor_types.get('exact', 0) / total_links
+            exact_ratio = anchor_types.get("exact", 0) / total_links
             if exact_ratio > 0.4:
                 recommendations.append(
                     "⚠️ För många exact match anchors - diversifiera med partial/generic"
@@ -304,9 +322,9 @@ class LinkHistoryAnalyzer:
 
     def print_analysis(self, analysis: LinkAnalysis):
         """Skriv ut en snygg analys."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"LINK HISTORY ANALYSIS: {analysis.canonical_root}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 OVERVIEW")
         print(f"  Brand: {analysis.brand}")
@@ -322,18 +340,22 @@ class LinkHistoryAnalyzer:
             print(f"  Links per month: {analysis.links_per_month:.1f}")
 
         print(f"\n🎯 ANCHOR TEXT ANALYSIS")
-        print(f"  Diversity score: {analysis.anchor_diversity_score:.2f} (0-1, higher = more diverse)")
+        print(
+            f"  Diversity score: {analysis.anchor_diversity_score:.2f} (0-1, higher = more diverse)"
+        )
 
         if analysis.anchor_types:
             print(f"  Anchor types:")
-            for atype, count in sorted(analysis.anchor_types.items(), key=lambda x: x[1], reverse=True):
+            for atype, count in sorted(
+                analysis.anchor_types.items(), key=lambda x: x[1], reverse=True
+            ):
                 pct = (count / analysis.total_links) * 100
                 print(f"    - {atype}: {count} ({pct:.1f}%)")
 
         if analysis.most_common_anchors:
             print(f"  Most common anchors:")
             for anchor, count in analysis.most_common_anchors[:5]:
-                print(f"    - \"{anchor}\" ({count}x)")
+                print(f'    - "{anchor}" ({count}x)')
 
         if analysis.most_linked_urls:
             print(f"\n🔗 TARGET URL ANALYSIS")
@@ -354,7 +376,9 @@ def demo():
     from pathlib import Path
 
     # Hitta databas
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")
@@ -372,4 +396,3 @@ def demo():
 
 if __name__ == "__main__":
     demo()
-

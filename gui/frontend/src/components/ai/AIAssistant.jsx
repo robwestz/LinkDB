@@ -7,7 +7,8 @@ const AIAssistant = ({ customerId = null }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hej! Jag är din AI SEO-assistent. Fråga mig om din länkprofil, SEO-strategi eller få smarta rekommendationer!',
+      content:
+        'Hej! Jag är din AI SEO-assistent. Fråga mig om din länkprofil, SEO-strategi eller få smarta rekommendationer!',
     },
   ]);
   const [input, setInput] = useState('');
@@ -24,7 +25,7 @@ const AIAssistant = ({ customerId = null }) => {
     if (!input.trim()) return;
 
     const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
 
@@ -33,9 +34,9 @@ const AIAssistant = ({ customerId = null }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
+          messages: [...messages, userMessage].map((m) => ({
             role: m.role,
-            content: m.content
+            content: m.content,
           })),
           customer_id: customerId,
         }),
@@ -43,10 +44,10 @@ const AIAssistant = ({ customerId = null }) => {
 
       const data = await response.json();
       const aiMessage = { role: 'assistant', content: data.data.response };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error('AI chat error:', error);
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: 'Ursäkta, något gick fel. Försök igen!' },
       ]);
@@ -66,7 +67,7 @@ const AIAssistant = ({ customerId = null }) => {
     'Hur ser min länkprofil ut?',
     'Vilka risker har jag?',
     'Vad ska jag göra härnäst?',
-    'Analysera min ankartextstrategi'
+    'Analysera min ankartextstrategi',
   ];
 
   return (
@@ -111,8 +112,18 @@ const AIAssistant = ({ customerId = null }) => {
           disabled={loading}
         />
         <Button onClick={sendMessage} disabled={loading || !input.trim()}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            />
           </svg>
         </Button>
       </div>

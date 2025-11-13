@@ -150,6 +150,61 @@ The GUI application provides:
 - **Preflight Analysis**: Validate plans before execution
 - **Export Tools**: Export to various formats
 
+## 🎨 Formatting & Linting
+
+This project uses automated code formatting and linting to maintain code quality and consistency.
+
+### Python Tools
+
+- **Black**: Code formatter (line-length 88)
+- **isort**: Import sorter
+- **flake8**: Style checker
+
+Run formatters locally:
+```bash
+# Format Python code
+black .
+isort .
+
+# Check for style issues
+flake8 . --max-line-length=88 --extend-ignore=E203,W503
+```
+
+### JavaScript/JSX Tools
+
+- **Prettier**: Code formatter
+- **ESLint**: Linter for JavaScript/JSX
+
+Run formatters locally (in gui/frontend/):
+```bash
+cd gui/frontend
+npm run format      # Format code with Prettier
+npm run lint        # Check for ESLint issues
+npm run lint:fix    # Auto-fix ESLint issues
+```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks to automatically format code before commits:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install the git hooks
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+```
+
+The hooks will automatically:
+- Format Python code with Black and isort
+- Check Python code with flake8
+- Format JavaScript/JSX with Prettier
+- Remove trailing whitespace
+- Ensure files end with a newline
+
 ## 🔐 Security & Privacy
 
 - All database files (*.db) are excluded from version control
@@ -163,6 +218,8 @@ This is a private project. For questions or issues, contact the project maintain
 ## 📝 License
 
 Private/Proprietary - All rights reserved
+
+> **Note**: Consider adding an MIT License to make the project open-source and easier to share. This would require creating a LICENSE file with the MIT license text. Please confirm if you'd like to add this.
 
 ## 👤 Author
 

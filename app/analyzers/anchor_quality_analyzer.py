@@ -8,18 +8,21 @@ Denna modul analyserar:
 - Brand vs commercial ratio
 - Semantic clustering av anchors
 """
+
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
-from collections import Counter
-import sqlite3
+
 import math
 import re
+import sqlite3
+from collections import Counter
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
 class AnchorQualityMetrics:
     """Kvalitetsmått för anchor text profil."""
+
     customer_id: int
     canonical_root: str
 
@@ -55,16 +58,32 @@ class AnchorQualityMetrics:
     single_use_anchors: int  # anchors used only once
 
 
-
 class AnchorQualityAnalyzer:
     """
     Analyserar kvalitet och naturlighet i anchor text profilen.
     """
 
     COMMERCIAL_KEYWORDS = {
-        'köp', 'buy', 'bäst', 'best', 'billig', 'cheap', 'gratis', 'free',
-        'erbjudande', 'deals', 'rabatt', 'discount', 'casino', 'betting',
-        'spela', 'play', 'vinn', 'win', 'bonus', 'odds'
+        "köp",
+        "buy",
+        "bäst",
+        "best",
+        "billig",
+        "cheap",
+        "gratis",
+        "free",
+        "erbjudande",
+        "deals",
+        "rabatt",
+        "discount",
+        "casino",
+        "betting",
+        "spela",
+        "play",
+        "vinn",
+        "win",
+        "bonus",
+        "odds",
     }
 
     def __init__(self, db_path: str):
@@ -79,8 +98,7 @@ class AnchorQualityAnalyzer:
 
         # Hämta customer info
         customer = con.execute(
-            "SELECT canonical_root, brand FROM customers WHERE id = ?",
-            (customer_id,)
+            "SELECT canonical_root, brand FROM customers WHERE id = ?", (customer_id,)
         ).fetchone()
 
         if not customer:
@@ -88,20 +106,23 @@ class AnchorQualityAnalyzer:
             return None
 
         # Hämta alla anchors
-        anchors_raw = con.execute("""
+        anchors_raw = con.execute(
+            """
             SELECT anchor_text, anchor_type
             FROM links_history
             WHERE customer_id = ? AND anchor_text IS NOT NULL AND TRIM(anchor_text) <> ''
-        """, (customer_id,)).fetchall()
+        """,
+            (customer_id,),
+        ).fetchall()
 
         con.close()
 
         if not anchors_raw:
             return None
 
-        anchors = [row['anchor_text'] for row in anchors_raw]
-        anchor_types = [row['anchor_type'] for row in anchors_raw if row['anchor_type']]
-        brand = customer['brand'] or customer['canonical_root']
+        anchors = [row["anchor_text"] for row in anchors_raw]
+        anchor_types = [row["anchor_type"] for row in anchors_raw if row["anchor_type"]]
+        brand = customer["brand"] or customer["canonical_root"]
 
         # Räkna och analysera
         total_anchors = len(anchors)
@@ -134,7 +155,9 @@ class AnchorQualityAnalyzer:
         )
 
         # Distribution
-        anchor_type_dist = self._calculate_type_distribution(anchor_types, total_anchors)
+        anchor_type_dist = self._calculate_type_distribution(
+            anchor_types, total_anchors
+        )
         top_10_anchors = anchor_counter.most_common(10)
         top_10_count = sum(count for _, count in top_10_anchors)
         top_10_concentration = top_10_count / total_anchors
@@ -147,18 +170,26 @@ class AnchorQualityAnalyzer:
 
         # Warnings & quality score
         warnings = self._generate_warnings(
-            exact_match_ratio, commercial_ratio, diversity_score,
-            top_10_concentration, gini, branded_ratio
+            exact_match_ratio,
+            commercial_ratio,
+            diversity_score,
+            top_10_concentration,
+            gini,
+            branded_ratio,
         )
 
         quality_score = self._calculate_quality_score(
-            diversity_score, over_opt_risk, top_10_concentration,
-            gini, branded_ratio, commercial_ratio
+            diversity_score,
+            over_opt_risk,
+            top_10_concentration,
+            gini,
+            branded_ratio,
+            commercial_ratio,
         )
 
         return AnchorQualityMetrics(
             customer_id=customer_id,
-            canonical_root=customer['canonical_root'],
+            canonical_root=customer["canonical_root"],
             total_anchors=total_anchors,
             unique_anchors=unique_anchors,
             shannon_entropy=shannon_entropy,
@@ -177,7 +208,7 @@ class AnchorQualityAnalyzer:
             warnings=warnings,
             quality_score=quality_score,
             top_anchors=top_10_anchors,
-            single_use_anchors=single_use
+            single_use_anchors=single_use,
         )
 
     def _calculate_shannon_entropy(self, counter: Counter, total: int) -> float:
@@ -235,10 +266,7 @@ class AnchorQualityAnalyzer:
             return {}
 
         type_counter = Counter(anchor_types)
-        return {
-            atype: (count / total) * 100
-            for atype, count in type_counter.items()
-        }
+        return {atype: (count / total) * 100 for atype, count in type_counter.items()}
 
     def _calculate_gini_coefficient(self, values: List[int]) -> float:
         """
@@ -259,8 +287,13 @@ class AnchorQualityAnalyzer:
         return (2 * cumsum) / (n * sum(sorted_values)) - (n + 1) / n
 
     def _generate_warnings(
-        self, exact_ratio: float, commercial_ratio: float,
-        diversity: float, top10_conc: float, gini: float, branded_ratio: float
+        self,
+        exact_ratio: float,
+        commercial_ratio: float,
+        diversity: float,
+        top10_conc: float,
+        gini: float,
+        branded_ratio: float,
     ) -> List[str]:
         """Generera varningar baserat på metrics."""
         warnings = []
@@ -291,9 +324,7 @@ class AnchorQualityAnalyzer:
             )
 
         if branded_ratio < 0.1:
-            warnings.append(
-                "💡 Överväg fler branded anchors för naturlighet"
-            )
+            warnings.append("💡 Överväg fler branded anchors för naturlighet")
 
         if not warnings:
             warnings.append("✅ Anchor profil ser naturlig och balanserad ut")
@@ -301,8 +332,13 @@ class AnchorQualityAnalyzer:
         return warnings
 
     def _calculate_quality_score(
-        self, diversity: float, over_opt_risk: str,
-        top10_conc: float, gini: float, branded_ratio: float, commercial_ratio: float
+        self,
+        diversity: float,
+        over_opt_risk: str,
+        top10_conc: float,
+        gini: float,
+        branded_ratio: float,
+        commercial_ratio: float,
     ) -> float:
         """Beräkna overall quality score 0-100."""
         score = 0.0
@@ -338,9 +374,9 @@ class AnchorQualityAnalyzer:
 
     def print_analysis(self, metrics: AnchorQualityMetrics):
         """Skriv ut snygg analys."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"ANCHOR QUALITY ANALYSIS: {metrics.canonical_root}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 OVERVIEW")
         print(f"  Quality Score: {metrics.quality_score:.1f}/100")
@@ -352,7 +388,9 @@ class AnchorQualityAnalyzer:
         print(f"\n📈 DIVERSITY METRICS")
         print(f"  Shannon Entropy: {metrics.shannon_entropy:.2f}")
         print(f"  Diversity Score: {metrics.diversity_score:.1f}/100")
-        print(f"  Gini Coefficient: {metrics.gini_coefficient:.3f} (0=equal, 1=unequal)")
+        print(
+            f"  Gini Coefficient: {metrics.gini_coefficient:.3f} (0=equal, 1=unequal)"
+        )
         print(f"  Top 10 Concentration: {metrics.top_10_concentration*100:.1f}%")
 
         print(f"\n📏 LENGTH & COMPLEXITY")
@@ -367,7 +405,11 @@ class AnchorQualityAnalyzer:
 
         if metrics.anchor_type_distribution:
             print(f"\n🏷️ ANCHOR TYPE DISTRIBUTION")
-            for atype, pct in sorted(metrics.anchor_type_distribution.items(), key=lambda x: x[1], reverse=True):
+            for atype, pct in sorted(
+                metrics.anchor_type_distribution.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            ):
                 print(f"  {atype}: {pct:.1f}%")
 
         print(f"\n⚠️ WARNINGS & RECOMMENDATIONS")
@@ -378,14 +420,16 @@ class AnchorQualityAnalyzer:
             print(f"\n🔝 TOP 10 ANCHORS")
             for i, (anchor, count) in enumerate(metrics.top_anchors, 1):
                 pct = (count / metrics.total_anchors) * 100
-                print(f"  {i}. \"{anchor}\" ({count}x, {pct:.1f}%)")
+                print(f'  {i}. "{anchor}" ({count}x, {pct:.1f}%)')
 
 
 def demo():
     """Demo av Anchor Quality Analyzer."""
     from pathlib import Path
 
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")

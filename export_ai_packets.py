@@ -1,8 +1,10 @@
 import sqlite3
-from pathlib import Path
 from collections import Counter
-from app.settings import OUTPUT_DB
+from pathlib import Path
+
 import tldextract
+
+from app.settings import OUTPUT_DB
 
 OUT = Path("data/output/ai_packets")
 OUT.mkdir(parents=True, exist_ok=True)

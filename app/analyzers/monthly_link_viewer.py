@@ -4,19 +4,22 @@ Monthly Link View - Visa länkar grupperade per månad för varje kund.
 Detta ger oss gratis historik över hur varje månadsplanering har sett ut,
 vilket blir en pusselbit i semantisk analys och topical authority-planering.
 """
+
 from __future__ import annotations
+
+import calendar
 import sqlite3
-from pathlib import Path
-from typing import Dict, List, Optional
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
-import calendar
+from pathlib import Path
+from typing import Dict, List, Optional
 
 
 @dataclass
 class MonthlyLinkGroup:
     """En grupp av länkar för en specifik månad."""
+
     year: int
     month: int
     month_name: str
@@ -70,12 +73,14 @@ class MonthlyLinkViewer:
         con.row_factory = sqlite3.Row
 
         # Hämta alla länkar med datum
-        links = con.execute("""
+        links = con.execute(
+            """
             SELECT *,
                    COALESCE(published_at, created_at) as effective_date
             FROM links_history
             ORDER BY effective_date
-        """).fetchall()
+        """
+        ).fetchall()
 
         if not links:
             con.close()
@@ -85,14 +90,14 @@ class MonthlyLinkViewer:
         monthly_dict = defaultdict(list)
 
         for link in links:
-            date_str = link['effective_date']
+            date_str = link["effective_date"]
             if not date_str:
                 continue
 
             try:
                 # Parse datum
                 if isinstance(date_str, str):
-                    date_obj = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    date_obj = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                 else:
                     continue
 
@@ -113,26 +118,25 @@ class MonthlyLinkViewer:
             target_url_counts = defaultdict(int)
 
             for link in month_links:
-                if link['pub_domain']:
-                    pub_domains.add(link['pub_domain'])
-                if link['target_url']:
-                    target_urls.add(link['target_url'])
-                    target_url_counts[link['target_url']] += 1
-                if link['anchor_type']:
-                    anchor_types[link['anchor_type']] += 1
-                if link['anchor_text']:
-                    anchors.append(link['anchor_text'])
+                if link["pub_domain"]:
+                    pub_domains.add(link["pub_domain"])
+                if link["target_url"]:
+                    target_urls.add(link["target_url"])
+                    target_url_counts[link["target_url"]] += 1
+                if link["anchor_type"]:
+                    anchor_types[link["anchor_type"]] += 1
+                if link["anchor_text"]:
+                    anchors.append(link["anchor_text"])
 
             # Räkna vanligaste ankartexter
             from collections import Counter
+
             anchor_counter = Counter(anchors)
             most_common_anchors = anchor_counter.most_common(5)
 
             # Target URL distribution
             target_url_distribution = sorted(
-                target_url_counts.items(),
-                key=lambda x: x[1],
-                reverse=True
+                target_url_counts.items(), key=lambda x: x[1], reverse=True
             )[:5]
 
             month_name = calendar.month_name[month]
@@ -147,7 +151,7 @@ class MonthlyLinkViewer:
                 unique_target_urls=len(target_urls),
                 anchor_types=dict(anchor_types),
                 most_common_anchors=most_common_anchors,
-                target_url_distribution=target_url_distribution
+                target_url_distribution=target_url_distribution,
             )
 
             groups.append(group)
@@ -201,17 +205,17 @@ class MonthlyLinkViewer:
         customer = con.execute("SELECT * FROM customers LIMIT 1").fetchone()
         con.close()
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"MONTHLY LINK HISTORY: {customer['canonical_root']}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\nTotalt: {len(groups)} månader med länkdata")
         print(f"Period: {groups[0].display_name} - {groups[-1].display_name}")
         print(f"Totalt länkar: {sum(g.link_count for g in groups)}")
 
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
         print("MÅNADSÖVERSIKT")
-        print("-"*70)
+        print("-" * 70)
 
         for group in groups:
             print(f"\n📅 {group.display_name} ({group.link_count} länkar)")
@@ -219,11 +223,13 @@ class MonthlyLinkViewer:
             print(f"   Unika målsidor: {group.unique_target_urls}")
 
             if group.anchor_types:
-                print(f"   Anchor types: {', '.join(f'{k}: {v}' for k, v in group.anchor_types.items())}")
+                print(
+                    f"   Anchor types: {', '.join(f'{k}: {v}' for k, v in group.anchor_types.items())}"
+                )
 
             if group.most_common_anchors:
                 top_anchor = group.most_common_anchors[0]
-                print(f"   Vanligaste ankar: \"{top_anchor[0]}\" ({top_anchor[1]}x)")
+                print(f'   Vanligaste ankar: "{top_anchor[0]}" ({top_anchor[1]}x)')
 
             if group.target_url_distribution:
                 top_url = group.target_url_distribution[0]
@@ -237,9 +243,9 @@ class MonthlyLinkViewer:
             print(f"Ingen data för {year}-{month:02d}")
             return
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print(f"DETALJER: {group.display_name}")
-        print("="*70)
+        print("=" * 70)
 
         print(f"\n📊 ÖVERSIKT")
         print(f"  Totalt länkar: {group.link_count}")
@@ -248,20 +254,22 @@ class MonthlyLinkViewer:
 
         print(f"\n🎯 ANCHOR TYPES")
         if group.anchor_types:
-            for atype, count in sorted(group.anchor_types.items(), key=lambda x: x[1], reverse=True):
+            for atype, count in sorted(
+                group.anchor_types.items(), key=lambda x: x[1], reverse=True
+            ):
                 pct = (count / group.link_count) * 100
                 print(f"  {atype}: {count} ({pct:.1f}%)")
 
         print(f"\n📝 VANLIGASTE ANKARTEXTER")
         for anchor, count in group.most_common_anchors:
-            print(f"  \"{anchor}\" ({count}x)")
+            print(f'  "{anchor}" ({count}x)')
 
         print(f"\n🔗 MEST LÄNKADE MÅLSIDOR")
         for url, count in group.target_url_distribution:
             print(f"  {count}x - {url}")
 
         print(f"\n📋 ALLA LÄNKAR ({group.link_count} st)")
-        print("-"*70)
+        print("-" * 70)
 
         for i, link in enumerate(group.links, 1):
             print(f"\n{i}. {link['pub_domain']} → {link['target_url'][:60]}")
@@ -278,7 +286,7 @@ class MonthlyLinkViewer:
             print(f"Ingen data för {year}-{month:02d}")
             return
 
-        with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
+        with open(output_path, "w", newline="", encoding="utf-8-sig") as csvfile:
             if not group.links:
                 return
 
@@ -299,7 +307,14 @@ def demo():
     from pathlib import Path
 
     # Hitta en kunddatabas (bethard.com)
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "customers" / "bethard.com" / "customer.db"
+    db_path = (
+        Path(__file__).resolve().parents[2]
+        / "data"
+        / "output"
+        / "customers"
+        / "bethard.com"
+        / "customer.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")
@@ -311,16 +326,17 @@ def demo():
     viewer.print_summary()
 
     # Visa senaste månaderna
-    print("\n\n" + "="*70)
+    print("\n\n" + "=" * 70)
     print("SENASTE 3 MÅNADERNA")
-    print("="*70)
+    print("=" * 70)
 
     recent = viewer.get_recent_months(3)
     for group in recent:
         print(f"\n{group.display_name}: {group.link_count} länkar")
-        print(f"  Målsidor: {group.unique_target_urls}, Pub-domäner: {group.unique_pub_domains}")
+        print(
+            f"  Målsidor: {group.unique_target_urls}, Pub-domäner: {group.unique_pub_domains}"
+        )
 
 
 if __name__ == "__main__":
     demo()
-

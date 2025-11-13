@@ -1,10 +1,11 @@
 # app/build_history_db.py
 import sqlite3
+from pathlib import Path
+
 import pandas as pd
 import tldextract
-from pathlib import Path
 from rich import print
-from settings import INPUT_XLSX, DB_PATH, COLUMNS, OPTIONAL
+from settings import COLUMNS, DB_PATH, INPUT_XLSX, OPTIONAL
 
 SCHEMA_FILE = Path(__file__).parent / "schema.sql"
 
@@ -88,9 +89,11 @@ def main():
 
             # --- normalisering av nyckelfält (matchar UNIQUE-indexet) ---
             pub_page_url = str(row[COLUMNS["pub_page_url"]] or "").strip()
-            target_url   = str(row[COLUMNS["target_url"]] or "").strip()
-            anchor_text  = str(row[COLUMNS["anchor_text"]] or "").strip()
-            published_at = str(row[COLUMNS["published_at"]] or "").strip()  # '' istället för NULL
+            target_url = str(row[COLUMNS["target_url"]] or "").strip()
+            anchor_text = str(row[COLUMNS["anchor_text"]] or "").strip()
+            published_at = str(
+                row[COLUMNS["published_at"]] or ""
+            ).strip()  # '' istället för NULL
 
             if not pub_page_url or not target_url:
                 continue  # kräver båda för en giltig rad

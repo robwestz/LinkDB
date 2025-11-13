@@ -8,4 +8,3 @@ Planning module - Core functionality for intelligent link planning.
 """
 
 __version__ = "1.0.0"
-

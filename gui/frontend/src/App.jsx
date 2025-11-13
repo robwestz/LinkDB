@@ -7,7 +7,9 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const CustomerList = lazy(() => import('./pages/CustomerList'));
 const CustomerAnalysis = lazy(() => import('./pages/CustomerAnalysis'));
-const CompetitiveBenchmarking = lazy(() => import('./pages/CompetitiveBenchmarking'));
+const CompetitiveBenchmarking = lazy(
+  () => import('./pages/CompetitiveBenchmarking')
+);
 const LinkExplorer = lazy(() => import('./pages/LinkExplorer'));
 const AIChat = lazy(() => import('./pages/AIChat'));
 const Settings = lazy(() => import('./pages/Settings'));
@@ -16,11 +18,13 @@ function App() {
   return (
     <Router>
       <Layout>
-        <Suspense fallback={
-          <div className="flex items-center justify-center h-64">
-            <LoadingSpinner size="lg" />
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-64">
+              <LoadingSpinner size="lg" />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/customers" element={<CustomerList />} />

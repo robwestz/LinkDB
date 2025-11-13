@@ -1,5 +1,6 @@
 # app/reset_history_db.py
 from pathlib import Path
+
 from settings import DB_PATH
 
 if DB_PATH.exists():

@@ -1,13 +1,16 @@
 """
 Exportera alla rader för customer_id 117 till CSV
 """
-import sqlite3
+
 import csv
-from pathlib import Path
+import sqlite3
 from datetime import datetime
+from pathlib import Path
 
 # Databas och customer_id
-HISTORY_DB = Path(r"C:\Users\robin\PycharmProjects\linkdb\data\output\linkops_history.db")
+HISTORY_DB = Path(
+    r"C:\Users\robin\PycharmProjects\linkdb\data\output\linkops_history.db"
+)
 CUSTOMER_ID = 117
 OUTPUT_DIR = Path(r"C:\Users\robin\PycharmProjects\linkdb\data\output")
 
@@ -28,11 +31,14 @@ print(f"Kund: {customer['canonical_root']} (Brand: {customer['brand']})")
 print()
 
 # Hämta alla länkar för denna kund
-links = con.execute("""
+links = con.execute(
+    """
     SELECT * FROM links_history 
     WHERE customer_id = ? 
     ORDER BY id
-""", (CUSTOMER_ID,)).fetchall()
+""",
+    (CUSTOMER_ID,),
+).fetchall()
 
 print(f"Antal länkar hittade: {len(links)}")
 
@@ -41,14 +47,17 @@ if len(links) == 0:
     exit(0)
 
 # Skapa CSV-fil
-timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-csv_filename = OUTPUT_DIR / f"customer_{CUSTOMER_ID}_{customer['canonical_root'].replace('.', '_')}_{timestamp}.csv"
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+csv_filename = (
+    OUTPUT_DIR
+    / f"customer_{CUSTOMER_ID}_{customer['canonical_root'].replace('.', '_')}_{timestamp}.csv"
+)
 
 print(f"Exporterar till: {csv_filename}")
 print()
 
 # Skriv CSV
-with open(csv_filename, 'w', newline='', encoding='utf-8-sig') as csvfile:
+with open(csv_filename, "w", newline="", encoding="utf-8-sig") as csvfile:
     # Hämta kolumnnamn från första raden
     column_names = links[0].keys()
 
@@ -71,4 +80,3 @@ for i, col in enumerate(column_names, 1):
     print(f"  {i:2d}. {col}")
 
 con.close()
-

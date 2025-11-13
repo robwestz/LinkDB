@@ -1,14 +1,17 @@
 """
 Generiskt verktyg: Exportera data för vilket customer_id som helst till CSV
 """
-import sqlite3
+
 import csv
-from pathlib import Path
-from datetime import datetime
+import sqlite3
 import sys
+from datetime import datetime
+from pathlib import Path
 
 # Databas
-HISTORY_DB = Path(r"C:\Users\robin\PycharmProjects\linkdb\data\output\linkops_history.db")
+HISTORY_DB = Path(
+    r"C:\Users\robin\PycharmProjects\linkdb\data\output\linkops_history.db"
+)
 OUTPUT_DIR = Path(r"C:\Users\robin\PycharmProjects\linkdb\data\output")
 
 
@@ -23,7 +26,9 @@ def export_customer_to_csv(customer_id: int):
     con.row_factory = sqlite3.Row
 
     # Hämta customer info
-    customer = con.execute("SELECT * FROM customers WHERE id=?", (customer_id,)).fetchone()
+    customer = con.execute(
+        "SELECT * FROM customers WHERE id=?", (customer_id,)
+    ).fetchone()
     if not customer:
         print(f"❌ ERROR: Customer ID {customer_id} finns inte!")
         con.close()
@@ -33,11 +38,14 @@ def export_customer_to_csv(customer_id: int):
     print()
 
     # Hämta alla länkar för denna kund
-    links = con.execute("""
+    links = con.execute(
+        """
         SELECT * FROM links_history 
         WHERE customer_id = ? 
         ORDER BY id
-    """, (customer_id,)).fetchall()
+    """,
+        (customer_id,),
+    ).fetchall()
 
     print(f"Antal länkar hittade: {len(links)}")
 
@@ -47,15 +55,15 @@ def export_customer_to_csv(customer_id: int):
         return None
 
     # Skapa CSV-fil med säkert filnamn
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    safe_name = customer['canonical_root'].replace('.', '_').replace('/', '_')
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_name = customer["canonical_root"].replace(".", "_").replace("/", "_")
     csv_filename = OUTPUT_DIR / f"customer_{customer_id}_{safe_name}_{timestamp}.csv"
 
     print(f"Exporterar till: {csv_filename.name}")
     print()
 
     # Skriv CSV
-    with open(csv_filename, 'w', newline='', encoding='utf-8-sig') as csvfile:
+    with open(csv_filename, "w", newline="", encoding="utf-8-sig") as csvfile:
         # Hämta kolumnnamn från första raden
         column_names = links[0].keys()
 
@@ -86,18 +94,22 @@ def list_customers():
     con = sqlite3.connect(HISTORY_DB)
     con.row_factory = sqlite3.Row
 
-    customers = con.execute("""
+    customers = con.execute(
+        """
         SELECT c.id, c.canonical_root, c.brand, COUNT(lh.id) as link_count
         FROM customers c
         LEFT JOIN links_history lh ON c.id = lh.customer_id
         GROUP BY c.id
         ORDER BY c.id
-    """).fetchall()
+    """
+    ).fetchall()
 
     print(f"\n{'ID':<6} {'Canonical Root':<35} {'Brand':<25} {'Links':>6}")
     print("=" * 80)
     for cust in customers:
-        print(f"{cust['id']:<6} {cust['canonical_root']:<35} {cust['brand'] or '-':<25} {cust['link_count']:>6}")
+        print(
+            f"{cust['id']:<6} {cust['canonical_root']:<35} {cust['brand'] or '-':<25} {cust['link_count']:>6}"
+        )
 
     con.close()
     print(f"\nTotalt: {len(customers)} kunder")
@@ -128,4 +140,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

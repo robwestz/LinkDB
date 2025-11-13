@@ -5,17 +5,20 @@ baserat på antal rader per customer_id i planeringsdokument.
 Detta möjliggör semantisk planering eftersom vi vet hur många länkar
 vi har att jobba med för varje kund.
 """
+
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Dict, List, Optional
-from collections import Counter
+
 import sqlite3
+from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict, List, Optional
 
 
 @dataclass
 class CustomerPlanningVolume:
     """Volym-information för en kunds planering."""
+
     customer_id: int
     canonical_root: str
     brand: str
@@ -53,7 +56,9 @@ class PlanningVolumeDetector:
         """
         self.history_db_path = history_db_path
 
-    def detect_from_dict(self, planning_data: Dict[int, int]) -> List[CustomerPlanningVolume]:
+    def detect_from_dict(
+        self, planning_data: Dict[int, int]
+    ) -> List[CustomerPlanningVolume]:
         """
         Detektera volym från en dictionary med customer_id -> count.
 
@@ -72,7 +77,7 @@ class PlanningVolumeDetector:
             # Hämta customer info
             customer = con.execute(
                 "SELECT canonical_root, brand FROM customers WHERE id = ?",
-                (customer_id,)
+                (customer_id,),
             ).fetchone()
 
             if not customer:
@@ -81,25 +86,28 @@ class PlanningVolumeDetector:
             # Hämta historisk data
             historical_total = con.execute(
                 "SELECT COUNT(*) as cnt FROM links_history WHERE customer_id = ?",
-                (customer_id,)
-            ).fetchone()['cnt']
+                (customer_id,),
+            ).fetchone()["cnt"]
 
             # Beräkna månadsgenomsnitt (approximation)
-            historical_monthly_avg = historical_total / 12 if historical_total > 0 else 0
+            historical_monthly_avg = (
+                historical_total / 12 if historical_total > 0 else 0
+            )
 
             # Klassificera strategi
-            strategy, can_cluster, can_authority = self._classify_strategy(planned_count)
+            strategy, can_cluster, can_authority = self._classify_strategy(
+                planned_count
+            )
 
             # Semantisk planering möjlig?
             semantic_possible, complexity = self._assess_semantic_capability(
-                planned_count,
-                historical_total
+                planned_count, historical_total
             )
 
             volume = CustomerPlanningVolume(
                 customer_id=customer_id,
-                canonical_root=customer['canonical_root'],
-                brand=customer['brand'] or customer['canonical_root'],
+                canonical_root=customer["canonical_root"],
+                brand=customer["brand"] or customer["canonical_root"],
                 planned_links=planned_count,
                 historical_total=historical_total,
                 historical_monthly_avg=historical_monthly_avg,
@@ -107,7 +115,7 @@ class PlanningVolumeDetector:
                 can_cluster=can_cluster,
                 can_build_authority=can_authority,
                 semantic_planning_possible=semantic_possible,
-                semantic_complexity=complexity
+                semantic_complexity=complexity,
             )
 
             volumes.append(volume)
@@ -119,7 +127,9 @@ class PlanningVolumeDetector:
 
         return volumes
 
-    def detect_from_planning_sheet(self, sheet_data: List[Dict]) -> List[CustomerPlanningVolume]:
+    def detect_from_planning_sheet(
+        self, sheet_data: List[Dict]
+    ) -> List[CustomerPlanningVolume]:
         """
         Detektera volym från parsed sheet data.
 
@@ -135,13 +145,13 @@ class PlanningVolumeDetector:
 
         for row in sheet_data:
             # Försök hitta customer_id
-            customer_id = row.get('customer_id')
+            customer_id = row.get("customer_id")
 
             if customer_id:
                 customer_counts[customer_id] += 1
             else:
                 # Fallback: försök matcha via brand/canonical_root
-                brand = row.get('brand') or row.get('canonical_root')
+                brand = row.get("brand") or row.get("canonical_root")
                 if brand:
                     # Slå upp customer_id via brand
                     cid = self._lookup_customer_id(brand)
@@ -154,11 +164,14 @@ class PlanningVolumeDetector:
         """Slå upp customer_id från brand eller canonical_root."""
         con = sqlite3.connect(self.history_db_path)
 
-        result = con.execute("""
+        result = con.execute(
+            """
             SELECT id FROM customers 
             WHERE canonical_root = ? OR brand = ?
             LIMIT 1
-        """, (identifier, identifier)).fetchone()
+        """,
+            (identifier, identifier),
+        ).fetchone()
 
         con.close()
 
@@ -183,9 +196,7 @@ class PlanningVolumeDetector:
             return ("enterprise_authority", True, True)
 
     def _assess_semantic_capability(
-        self,
-        planned_count: int,
-        historical_count: int
+        self, planned_count: int, historical_count: int
     ) -> tuple[bool, str]:
         """
         Bedöm om semantisk planering är möjlig och hur avancerad.
@@ -212,9 +223,9 @@ class PlanningVolumeDetector:
 
     def print_summary(self, volumes: List[CustomerPlanningVolume]):
         """Skriv ut sammanfattning av detected volumes."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("PLANNING VOLUME DETECTION")
-        print("="*70)
+        print("=" * 70)
 
         total_customers = len(volumes)
         total_links = sum(v.planned_links for v in volumes)
@@ -226,6 +237,7 @@ class PlanningVolumeDetector:
 
         # Gruppera per strategi
         from collections import defaultdict
+
         strategy_groups = defaultdict(list)
 
         for v in volumes:
@@ -233,7 +245,9 @@ class PlanningVolumeDetector:
 
         print(f"\n🎯 STRATEGIFÖRDELNING")
         for strategy, group in sorted(strategy_groups.items()):
-            print(f"  {strategy}: {len(group)} kunder ({sum(v.planned_links for v in group)} länkar)")
+            print(
+                f"  {strategy}: {len(group)} kunder ({sum(v.planned_links for v in group)} länkar)"
+            )
 
         # Semantisk kapacitet
         semantic_capable = [v for v in volumes if v.semantic_planning_possible]
@@ -247,14 +261,18 @@ class PlanningVolumeDetector:
                 print(f"  {complexity}: {count} kunder")
 
         print(f"\n📋 DETALJERAD LISTA")
-        print("-"*70)
+        print("-" * 70)
 
         for v in volumes:
             print(f"\n{v.canonical_root}")
             print(f"  Planerade länkar: {v.planned_links}")
-            print(f"  Historik: {v.historical_total} totalt, ~{v.historical_monthly_avg:.1f}/månad")
+            print(
+                f"  Historik: {v.historical_total} totalt, ~{v.historical_monthly_avg:.1f}/månad"
+            )
             print(f"  Strategi: {v.recommended_strategy}")
-            print(f"  Semantisk planering: {'✅ Ja' if v.semantic_planning_possible else '❌ Nej'} ({v.semantic_complexity})")
+            print(
+                f"  Semantisk planering: {'✅ Ja' if v.semantic_planning_possible else '❌ Nej'} ({v.semantic_complexity})"
+            )
 
             if v.semantic_planning_possible:
                 print(f"  → Kan bygga topic clusters: {v.can_cluster}")
@@ -266,7 +284,9 @@ def demo():
     from pathlib import Path
 
     # Hitta history database
-    db_path = Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    db_path = (
+        Path(__file__).resolve().parents[2] / "data" / "output" / "linkops_history.db"
+    )
 
     if not db_path.exists():
         print(f"ERROR: Database not found at {db_path}")
@@ -286,9 +306,9 @@ def demo():
 
     detector.print_summary(volumes)
 
-    print("\n\n" + "="*70)
+    print("\n\n" + "=" * 70)
     print("SEMANTISK PLANERING - MÖJLIGHETER")
-    print("="*70)
+    print("=" * 70)
 
     for v in volumes:
         if v.semantic_planning_possible:
@@ -305,9 +325,10 @@ def demo():
             print(f"   ✅ Koordinera länkar för maximal SEO-effekt")
 
             if v.semantic_complexity == "advanced_with_history":
-                print(f"   🎯 BONUS: Kan använda historik för att förbättra planeringen!")
+                print(
+                    f"   🎯 BONUS: Kan använda historik för att förbättra planeringen!"
+                )
 
 
 if __name__ == "__main__":
     demo()
-

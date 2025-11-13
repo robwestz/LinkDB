@@ -1,8 +1,10 @@
 # app/build_all_customer_dbs.py
 from __future__ import annotations
+
+import re
 import sqlite3
 from pathlib import Path
-import re
+
 from rich import print
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,8 +57,10 @@ FROM customers c
 LIMIT 1;
 """
 
+
 def ensure_schema(con: sqlite3.Connection):
     con.executescript(SCHEMA_SQL)
+
 
 def safe_dir_token(canonical_root: str | None, brand: str | None, cid: int) -> str:
     """
@@ -78,16 +82,21 @@ def safe_dir_token(canonical_root: str | None, brand: str | None, cid: int) -> s
         candidate = f"cust_{cid}"
     return candidate
 
-def build_one_customer_db(src_con: sqlite3.Connection, customer_id: int, canonical_root: str, brand: str | None) -> Path:
+
+def build_one_customer_db(
+    src_con: sqlite3.Connection,
+    customer_id: int,
+    canonical_root: str,
+    brand: str | None,
+) -> Path:
     # hämta kundens rad
     c_row = src_con.execute(
         "SELECT id, canonical_root, brand, created_at FROM customers WHERE id=?",
-        (customer_id,)
+        (customer_id,),
     ).fetchone()
     # hämta kundens historik
     links = src_con.execute(
-        "SELECT * FROM links_history WHERE customer_id=?",
-        (customer_id,)
+        "SELECT * FROM links_history WHERE customer_id=?", (customer_id,)
     ).fetchall()
 
     # skapa målfil (säker katalognamn)
@@ -103,16 +112,20 @@ def build_one_customer_db(src_con: sqlite3.Connection, customer_id: int, canonic
     # skriv customers
     dst_con.execute(
         "INSERT OR REPLACE INTO customers(id, canonical_root, brand, created_at) VALUES(?,?,?,?)",
-        (c_row["id"], c_row["canonical_root"], c_row["brand"], c_row["created_at"])
+        (c_row["id"], c_row["canonical_root"], c_row["brand"], c_row["created_at"]),
     )
 
     # skriv links_history (kolumn-intersection källa ↔ mål)
     if links:
         src_cols_rows = src_con.execute("PRAGMA table_info(links_history)").fetchall()
-        src_cols = [r["name"] if isinstance(r, sqlite3.Row) else r[1] for r in src_cols_rows]
+        src_cols = [
+            r["name"] if isinstance(r, sqlite3.Row) else r[1] for r in src_cols_rows
+        ]
 
         dst_cols_rows = dst_con.execute("PRAGMA table_info(links_history)").fetchall()
-        dst_cols = [r["name"] if isinstance(r, sqlite3.Row) else r[1] for r in dst_cols_rows]
+        dst_cols = [
+            r["name"] if isinstance(r, sqlite3.Row) else r[1] for r in dst_cols_rows
+        ]
 
         cols = [c for c in src_cols if c in dst_cols]
         insert_cols = ",".join(cols)
@@ -125,22 +138,25 @@ def build_one_customer_db(src_con: sqlite3.Connection, customer_id: int, canonic
             )
 
     # priority_pages (enkel heuristik: flest länkar per target_url)
-    pp_rows = dst_con.execute("""
+    pp_rows = dst_con.execute(
+        """
         SELECT target_url, COUNT(*) AS c
         FROM links_history
         GROUP BY target_url
         ORDER BY c DESC
         LIMIT 12
-    """).fetchall()
+    """
+    ).fetchall()
     for r in pp_rows:
         dst_con.execute(
             "INSERT INTO priority_pages(url, priority_score) VALUES(?,?)",
-            (r["target_url"], float(r["c"]))
+            (r["target_url"], float(r["c"])),
         )
 
     dst_con.commit()
     dst_con.close()
     return dst_db
+
 
 def main():
     if not SRC_DB.exists():
@@ -150,14 +166,18 @@ def main():
     src = sqlite3.connect(SRC_DB)
     src.row_factory = sqlite3.Row
 
-    customers = src.execute("SELECT id, canonical_root, brand FROM customers ORDER BY canonical_root").fetchall()
+    customers = src.execute(
+        "SELECT id, canonical_root, brand FROM customers ORDER BY canonical_root"
+    ).fetchall()
     print(f"[cyan]Hittade {len(customers)} kunder – bygger per-kund-databaser...[/]")
 
     built = 0
     failures = 0
     for row in customers:
         try:
-            db_path = build_one_customer_db(src, row["id"], row["canonical_root"], row["brand"])
+            db_path = build_one_customer_db(
+                src, row["id"], row["canonical_root"], row["brand"]
+            )
             built += 1
             print(f"[green]✔[/] {row['canonical_root']} → {db_path.relative_to(ROOT)}")
         except Exception as e:
@@ -165,9 +185,14 @@ def main():
             print(f"[red]✖[/] {row['canonical_root']!r} misslyckades: {e}")
 
     src.close()
-    print(f"[bold green]\nKlar![/] {built} kunddatabaser skapade under {OUT_DIR.relative_to(ROOT)}")
+    print(
+        f"[bold green]\nKlar![/] {built} kunddatabaser skapade under {OUT_DIR.relative_to(ROOT)}"
+    )
     if failures:
-        print(f"[yellow]Obs:[/] {failures} kunder hoppades över p.g.a. fel. Se loggen ovan.")
+        print(
+            f"[yellow]Obs:[/] {failures} kunder hoppades över p.g.a. fel. Se loggen ovan."
+        )
+
 
 if __name__ == "__main__":
     main()

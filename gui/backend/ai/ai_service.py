@@ -5,10 +5,11 @@ This service provides AI-powered insights, recommendations, and chat functionali
 Supports both OpenAI and mock mode (for testing without API keys).
 """
 
-import os
-import json
-from typing import Dict, List, Optional
 import asyncio
+import json
+import os
+from typing import Dict, List, Optional
+
 
 class AIService:
     """
@@ -28,6 +29,7 @@ class AIService:
             if api_key and api_key.startswith("sk-"):
                 try:
                     import openai
+
                     openai.api_key = api_key
                     self.model = "gpt-4-turbo-preview"
                     self.use_mock = False
@@ -145,33 +147,51 @@ Vill du att jag analyserar något specifikt område djupare? Du kan fråga om:
         # Analyze overall score
         overall_score = customer_data.get("overall_score", 0)
         if overall_score >= 80:
-            insights.append(f"🌟 Utmärkt övergripande hälsa ({overall_score:.1f}/100) - Din länkprofil är i toppskick!")
+            insights.append(
+                f"🌟 Utmärkt övergripande hälsa ({overall_score:.1f}/100) - Din länkprofil är i toppskick!"
+            )
         elif overall_score >= 60:
-            insights.append(f"✅ God länkprofilhälsa ({overall_score:.1f}/100) med utrymme för förbättring")
+            insights.append(
+                f"✅ God länkprofilhälsa ({overall_score:.1f}/100) med utrymme för förbättring"
+            )
         else:
-            insights.append(f"⚠️ Länkprofilen behöver uppmärksamhet ({overall_score:.1f}/100)")
+            insights.append(
+                f"⚠️ Länkprofilen behöver uppmärksamhet ({overall_score:.1f}/100)"
+            )
 
         # Analyze anchor quality
         anchor_quality = customer_data.get("anchor_quality", {})
         exact_match_ratio = anchor_quality.get("exact_match_ratio", 0) * 100
 
         if exact_match_ratio > 50:
-            insights.append(f"🚨 Hög risk för över-optimering: {exact_match_ratio:.1f}% exakta matchningar (rekommenderat: <40%)")
+            insights.append(
+                f"🚨 Hög risk för över-optimering: {exact_match_ratio:.1f}% exakta matchningar (rekommenderat: <40%)"
+            )
         elif exact_match_ratio > 30:
-            insights.append(f"⚠️ Exakt match-ratio på gränsen ({exact_match_ratio:.1f}%) - överväg mer varierade ankare")
+            insights.append(
+                f"⚠️ Exakt match-ratio på gränsen ({exact_match_ratio:.1f}%) - överväg mer varierade ankare"
+            )
         else:
-            insights.append(f"✅ Utmärkt ankardiversifiering med endast {exact_match_ratio:.1f}% exakta matchningar")
+            insights.append(
+                f"✅ Utmärkt ankardiversifiering med endast {exact_match_ratio:.1f}% exakta matchningar"
+            )
 
         # Analyze temporal patterns
         temporal = customer_data.get("temporal_patterns", {})
         velocity = temporal.get("links_per_month", 0)
 
         if velocity > 10:
-            insights.append(f"📈 Hög länkbyggnadshastighet ({velocity:.1f} länkar/månad) - säkerställ naturlig variation")
+            insights.append(
+                f"📈 Hög länkbyggnadshastighet ({velocity:.1f} länkar/månad) - säkerställ naturlig variation"
+            )
         elif velocity < 2:
-            insights.append(f"📉 Låg länkbyggnadshastighet ({velocity:.1f} länkar/månad) - överväg att öka aktiviteten")
+            insights.append(
+                f"📉 Låg länkbyggnadshastighet ({velocity:.1f} länkar/månad) - överväg att öka aktiviteten"
+            )
         else:
-            insights.append(f"⚡ Balanserad länkbyggnadshastighet ({velocity:.1f} länkar/månad)")
+            insights.append(
+                f"⚡ Balanserad länkbyggnadshastighet ({velocity:.1f} länkar/månad)"
+            )
 
         # Analyze domain quality
         domain_quality = customer_data.get("domain_quality", {})
@@ -181,23 +201,29 @@ Vill du att jag analyserar något specifikt område djupare? Du kan fråga om:
         domain_ratio = (unique_domains / total_links * 100) if total_links > 0 else 0
 
         if domain_ratio > 80:
-            insights.append(f"🌐 Exceptionell domändivers ifiering: {unique_domains} unika domäner ({domain_ratio:.1f}%)")
+            insights.append(
+                f"🌐 Exceptionell domändivers ifiering: {unique_domains} unika domäner ({domain_ratio:.1f}%)"
+            )
         elif domain_ratio > 50:
-            insights.append(f"✅ God domändiversifiering med {unique_domains} unika publiceringsdomäner")
+            insights.append(
+                f"✅ God domändiversifiering med {unique_domains} unika publiceringsdomäner"
+            )
         else:
-            insights.append(f"⚠️ Begränsad domändiversifiering ({domain_ratio:.1f}%) - öka variationen av källor")
+            insights.append(
+                f"⚠️ Begränsad domändiversifiering ({domain_ratio:.1f}%) - öka variationen av källor"
+            )
 
         # Add strategic insight
         if len(insights) < 5:
             brand = customer_data.get("brand", "Din webbplats")
-            insights.append(f"💡 För {brand}: Fortsätt fokusera på kvalitet över kvantitet och bygg länkar från relevanta källor i din nisch")
+            insights.append(
+                f"💡 För {brand}: Fortsätt fokusera på kvalitet över kvantitet och bygg länkar från relevanta källor i din nisch"
+            )
 
         return insights[:5]  # Return max 5 insights
 
     async def generate_recommendations(
-        self,
-        customer_data: Dict,
-        target_url: Optional[str] = None
+        self, customer_data: Dict, target_url: Optional[str] = None
     ) -> List[Dict]:
         """
         Generate smart recommendations for next actions.
@@ -211,49 +237,57 @@ Vill du att jag analyserar något specifikt område djupare? Du kan fråga om:
         over_opt_risk = anchor_quality.get("over_optimization_risk", "low")
 
         if exact_match_ratio > 40 or over_opt_risk in ["high", "medium"]:
-            recommendations.append({
-                "priority": 1,
-                "title": "Diversifiera ankartexterna omedelbart",
-                "action": "I nästa kampanj: 70% partial match, 20% branded, 10% exact match",
-                "reasoning": f"Nuvarande exact match-ratio ({exact_match_ratio:.1f}%) ökar risken för Google-påföljder",
-                "impact": "high"
-            })
+            recommendations.append(
+                {
+                    "priority": 1,
+                    "title": "Diversifiera ankartexterna omedelbart",
+                    "action": "I nästa kampanj: 70% partial match, 20% branded, 10% exact match",
+                    "reasoning": f"Nuvarande exact match-ratio ({exact_match_ratio:.1f}%) ökar risken för Google-påföljder",
+                    "impact": "high",
+                }
+            )
 
         # Temporal pattern recommendations
         temporal = customer_data.get("temporal_patterns", {})
         consistency = temporal.get("consistency_score", 100)
 
         if consistency < 70:
-            recommendations.append({
-                "priority": 2,
-                "title": "Jämna ut länkbyggnadstempon",
-                "action": "Sikta på 4-6 länkar per månad med jämn fördelning",
-                "reasoning": f"Låg konsistens ({consistency:.0f}/100) kan signalera onaturligt mönster",
-                "impact": "medium"
-            })
+            recommendations.append(
+                {
+                    "priority": 2,
+                    "title": "Jämna ut länkbyggnadstempon",
+                    "action": "Sikta på 4-6 länkar per månad med jämn fördelning",
+                    "reasoning": f"Låg konsistens ({consistency:.0f}/100) kan signalera onaturligt mönster",
+                    "impact": "medium",
+                }
+            )
 
         # Domain diversity recommendation
         domain_quality = customer_data.get("domain_quality", {})
         diversity_score = domain_quality.get("diversity_score", 100)
 
         if diversity_score < 80:
-            recommendations.append({
-                "priority": 3,
-                "title": "Öka domänvariationen",
-                "action": "Fokusera på nya, unika domäner med hög auktoritet i din nisch",
-                "reasoning": f"Diversity score ({diversity_score:.0f}/100) kan förbättras med bredare källbas",
-                "impact": "medium"
-            })
+            recommendations.append(
+                {
+                    "priority": 3,
+                    "title": "Öka domänvariationen",
+                    "action": "Fokusera på nya, unika domäner med hög auktoritet i din nisch",
+                    "reasoning": f"Diversity score ({diversity_score:.0f}/100) kan förbättras med bredare källbas",
+                    "impact": "medium",
+                }
+            )
 
         # Ensure we always have at least one recommendation
         if not recommendations:
-            recommendations.append({
-                "priority": 1,
-                "title": "Fortsätt den goda utvecklingen",
-                "action": "Bibehåll nuvarande strategi och bygg 4-6 kvalitetslänkar per månad",
-                "reasoning": "Din länkprofil är väl balanserad - fokusera på att behålla kvaliteten",
-                "impact": "low"
-            })
+            recommendations.append(
+                {
+                    "priority": 1,
+                    "title": "Fortsätt den goda utvecklingen",
+                    "action": "Bibehåll nuvarande strategi och bygg 4-6 kvalitetslänkar per månad",
+                    "reasoning": "Din länkprofil är väl balanserad - fokusera på att behålla kvaliteten",
+                    "impact": "low",
+                }
+            )
 
         return recommendations[:3]  # Return max 3 recommendations
 
@@ -265,7 +299,9 @@ Vill du att jag analyserar något specifikt område djupare? Du kan fråga om:
         query_lower = query.lower()
 
         # Links per month questions
-        if any(word in query_lower for word in ["länkar", "månad", "month", "per månad"]):
+        if any(
+            word in query_lower for word in ["länkar", "månad", "month", "per månad"]
+        ):
             links_per_month = context.get("links_per_month", 0)
             total_links = context.get("total_links", 0)
             return f"Du har i genomsnitt {links_per_month:.1f} länkar per månad, med totalt {total_links} länkar i databasen."
@@ -278,13 +314,21 @@ Vill du att jag analyserar något specifikt område djupare? Du kan fråga om:
             return f"Du har länkar från {unique_domains} unika domäner, vilket ger en diversifieringsgrad på {ratio:.1f}%. Detta är {'utmärkt' if ratio > 70 else 'bra' if ratio > 50 else 'okej, men kan förbättras'}."
 
         # Score/quality questions
-        if any(word in query_lower for word in ["score", "kvalitet", "betyg", "health"]):
+        if any(
+            word in query_lower for word in ["score", "kvalitet", "betyg", "health"]
+        ):
             overall_score = context.get("overall_score", 0)
-            status = "utmärkt" if overall_score >= 80 else "god" if overall_score >= 60 else "behöver förbättring"
+            status = (
+                "utmärkt"
+                if overall_score >= 80
+                else "god" if overall_score >= 60 else "behöver förbättring"
+            )
             return f"Din övergripande hälsopoäng är {overall_score:.1f}/100, vilket är {status}. Detta baseras på analys av ankarkvalitet, temporal fördelning och domänkvalitet."
 
         # Risk questions
-        if any(word in query_lower for word in ["risk", "varning", "warning", "problem"]):
+        if any(
+            word in query_lower for word in ["risk", "varning", "warning", "problem"]
+        ):
             # Check for warnings in anchor quality
             warnings_count = len(context.get("warnings", []))
             if warnings_count > 0:

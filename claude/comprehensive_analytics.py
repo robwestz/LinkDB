@@ -7,23 +7,24 @@ Detta script kombinerar alla analysmoduler för att ge en komplett bild:
 - Temporal Pattern Analysis
 - Domain Quality Analysis
 """
-from pathlib import Path
-import sys
+
 import io
+import sys
+from pathlib import Path
 
 # Fix Windows console encoding for emojis
 if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
 # Add app directory to path
 app_dir = Path(__file__).parent / "app"
 sys.path.insert(0, str(app_dir))
 
-from analyzers.link_history_analyzer import LinkHistoryAnalyzer
 from analyzers.anchor_quality_analyzer import AnchorQualityAnalyzer
-from analyzers.temporal_pattern_analyzer import TemporalPatternAnalyzer
 from analyzers.domain_quality_analyzer import DomainQualityAnalyzer
+from analyzers.link_history_analyzer import LinkHistoryAnalyzer
+from analyzers.temporal_pattern_analyzer import TemporalPatternAnalyzer
 
 
 class ComprehensiveAnalytics:
@@ -42,9 +43,9 @@ class ComprehensiveAnalytics:
         """
         Kör alla analyser för en kund.
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("COMPREHENSIVE BACKLINK ANALYTICS")
-        print("="*80)
+        print("=" * 80)
         print(f"\nAnalyzing Customer ID: {customer_id}")
         print("Running all analysis modules...\n")
 
@@ -80,9 +81,9 @@ class ComprehensiveAnalytics:
 
     def _print_executive_summary(self, history, anchor, temporal, domain):
         """Print en executive summary med key metrics."""
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("EXECUTIVE SUMMARY")
-        print("="*80)
+        print("=" * 80)
 
         if not any([history, anchor, temporal, domain]):
             print("\nNo data available for analysis.")
@@ -101,7 +102,9 @@ class ComprehensiveAnalytics:
             print(f"\n  Anchor Text Quality:")
             print(f"    • Quality Score: {anchor.quality_score:.1f}/100")
             print(f"    • Diversity Score: {anchor.diversity_score:.1f}/100")
-            print(f"    • Over-optimization Risk: {anchor.over_optimization_risk.upper()}")
+            print(
+                f"    • Over-optimization Risk: {anchor.over_optimization_risk.upper()}"
+            )
 
         if temporal:
             print(f"\n  Temporal Health:")
@@ -148,13 +151,17 @@ class ComprehensiveAnalytics:
 
         all_warnings = []
         if history:
-            all_warnings.extend([(w, 'Strategy') for w in history.recommendations if '⚠️' in w])
+            all_warnings.extend(
+                [(w, "Strategy") for w in history.recommendations if "⚠️" in w]
+            )
         if anchor:
-            all_warnings.extend([(w, 'Anchor') for w in anchor.warnings if '⚠️' in w])
+            all_warnings.extend([(w, "Anchor") for w in anchor.warnings if "⚠️" in w])
         if temporal:
-            all_warnings.extend([(w, 'Temporal') for w in temporal.warnings if '⚠️' in w])
+            all_warnings.extend(
+                [(w, "Temporal") for w in temporal.warnings if "⚠️" in w]
+            )
         if domain:
-            all_warnings.extend([(w, 'Domain') for w in domain.warnings if '⚠️' in w])
+            all_warnings.extend([(w, "Domain") for w in domain.warnings if "⚠️" in w])
 
         if all_warnings:
             for i, (warning, category) in enumerate(all_warnings[:3], 1):
@@ -162,7 +169,7 @@ class ComprehensiveAnalytics:
         else:
             print("  ✅ No critical issues detected!")
 
-        print("\n" + "="*80 + "\n")
+        print("\n" + "=" * 80 + "\n")
 
 
 def main():

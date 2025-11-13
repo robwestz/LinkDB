@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pandas as pd
 
 INPUT_XLSX = Path("data/input/main_sheet.xlsx")

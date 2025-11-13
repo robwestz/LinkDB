@@ -1,7 +1,9 @@
 """
 Planning Database Manager - Hanterar planning-databasen och schema.
 """
+
 from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
 from typing import Optional
@@ -37,7 +39,7 @@ class PlanningDBManager:
         if not self.schema_path.exists():
             raise FileNotFoundError(f"Schema file not found: {self.schema_path}")
 
-        schema_sql = self.schema_path.read_text(encoding='utf-8')
+        schema_sql = self.schema_path.read_text(encoding="utf-8")
 
         print(f"Initializing planning database: {self.db_path}")
         con.executescript(schema_sql)
@@ -54,47 +56,65 @@ class PlanningDBManager:
             (
                 "single_focus",
                 "Fokusera på en starkt optimerad länk",
-                1, 1,
+                1,
+                1,
                 '{"exact": 50, "branded": 50}',
-                0, 0, "high"
+                0,
+                0,
+                "high",
             ),
             (
                 "diversified_basics",
                 "Diversifiera ankartexter, grund för flera sidor",
-                2, 5,
+                2,
+                5,
                 '{"exact": 20, "partial": 30, "branded": 30, "generic": 20}',
-                0, 0, "medium"
+                0,
+                0,
+                "medium",
             ),
             (
                 "semantic_foundation",
                 "Börja bygga semantiska kluster, grundläggande authority",
-                6, 15,
+                6,
+                15,
                 '{"exact": 15, "partial": 35, "branded": 20, "generic": 20, "lsi": 10}',
-                1, 1, "medium"
+                1,
+                1,
+                "medium",
             ),
             (
                 "topical_authority",
                 "Full topical authority-strategi med flera kluster",
-                16, 30,
+                16,
+                30,
                 '{"exact": 10, "partial": 35, "branded": 20, "generic": 20, "lsi": 15}',
-                1, 1, "low"
+                1,
+                1,
+                "low",
             ),
             (
                 "enterprise_authority",
                 "Enterprise-strategi med djup topic coverage",
-                31, 9999,
+                31,
+                9999,
                 '{"exact": 8, "partial": 37, "branded": 20, "generic": 20, "lsi": 15}',
-                1, 1, "low"
+                1,
+                1,
+                "low",
             ),
         ]
 
-        con.executemany("""
+        con.executemany(
+            """
             INSERT OR IGNORE INTO planning_strategies 
             (strategy_name, description, link_count_min, link_count_max, 
              anchor_distribution, semantic_clustering, topical_authority_focus, 
              diversification_level)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, strategies)
+        """,
+            strategies,
+        )
 
         con.commit()
         con.close()
@@ -107,10 +127,17 @@ class PlanningDBManager:
         cur = con.cursor()
 
         tables = [
-            'link_plans', 'planned_links', 'semantic_clusters',
-            'entities', 'related_phrases', 'customer_analysis',
-            'planning_metrics', 'anchor_distribution', 'target_pages',
-            'page_keywords', 'planning_strategies'
+            "link_plans",
+            "planned_links",
+            "semantic_clusters",
+            "entities",
+            "related_phrases",
+            "customer_analysis",
+            "planning_metrics",
+            "anchor_distribution",
+            "target_pages",
+            "page_keywords",
+            "planning_strategies",
         ]
 
         counts = {}
@@ -151,13 +178,18 @@ def init_planning_db(db_path: Optional[str] = None, force: bool = False):
     """
     if db_path is None:
         # Default location
-        db_path = Path(__file__).resolve().parents[1] / "data" / "output" / "linkops_planning.db"
+        db_path = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "output"
+            / "linkops_planning.db"
+        )
 
     manager = PlanningDBManager(str(db_path))
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PLANNING DATABASE INITIALIZATION")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     manager.initialize_database(force=force)
     manager.add_default_strategies()
@@ -176,4 +208,3 @@ if __name__ == "__main__":
     force = "--force" in sys.argv or "-f" in sys.argv
 
     init_planning_db(force=force)
-

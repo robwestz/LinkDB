@@ -1,5 +1,14 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 const TemporalChart = ({ data }) => {
   return (
@@ -10,7 +19,12 @@ const TemporalChart = ({ data }) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="links" stroke="#3b82f6" strokeWidth={2} />
+        <Line
+          type="monotone"
+          dataKey="links"
+          stroke="#3b82f6"
+          strokeWidth={2}
+        />
       </LineChart>
     </ResponsiveContainer>
   );

@@ -10,7 +10,7 @@ Provides endpoints for:
 
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -192,7 +192,7 @@ async def natural_language_query(request: NLQueryRequest):
             "success": True,
             "data": {"answer": answer, "mock_mode": ai_service.use_mock},
         }
-    except Exception as e:
+    except Exception:
         # Fallback response
         return {
             "success": True,

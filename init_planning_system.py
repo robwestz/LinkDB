@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
 from app.planning.customer_grouper import CustomerGrouper
-from app.planning.customer_grouper import demo as grouper_demo
 from app.planning.db_manager import init_planning_db
 
 

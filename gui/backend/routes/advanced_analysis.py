@@ -13,7 +13,6 @@ This module provides enhanced analysis endpoints including:
 import re
 import sqlite3
 from collections import Counter
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -48,7 +47,7 @@ def parse_date(date_str: Optional[str]) -> Optional[str]:
         if year < 1900 or year > 2100 or month < 1 or month > 12:
             return None
         return f"{year:04d}-{month:02d}-01"
-    except:
+    except (ValueError, IndexError):
         return None
 
 

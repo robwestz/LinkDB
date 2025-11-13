@@ -15,7 +15,6 @@ if project_root not in sys.path:
 # Import analyzers (with error handling for development)
 try:
     from app.analyzers.anchor_quality_analyzer import AnchorQualityAnalyzer
-    from app.analyzers.competitive_comparison import CompetitiveComparison
     from app.analyzers.domain_quality_analyzer import DomainQualityAnalyzer
     from app.analyzers.link_history_analyzer import LinkHistoryAnalyzer
     from app.analyzers.temporal_pattern_analyzer import TemporalPatternAnalyzer

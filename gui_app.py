@@ -4,7 +4,6 @@ Link Planning GUI - Flask Web Application
 Ett modernt webbgränssnitt för intelligent länkplanering.
 """
 
-import json
 import sqlite3
 import sys
 from collections import Counter
